@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Faeweel - HDMI File Transfer</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🔄 Faeweel</h1>
+      <p class="subtitle">HDMI File Transfer Application</p>
+    </header>
+
+    <main>
+      <section class="control-panel">
+        <h2>Transfer Configuration</h2>
+
+        <div class="config-group">
+          <div class="input-group">
+            <label for="source-folder">Source Folder:</label>
+            <div class="folder-select">
+              <input type="text" id="source-folder" placeholder="Select source folder..." readonly>
+              <button id="select-source" class="btn btn-secondary">Browse</button>
+            </div>
+          </div>
+
+          <div class="input-group">
+            <label for="dest-folder">Destination Folder:</label>
+            <div class="folder-select">
+              <input type="text" id="dest-folder" placeholder="Select destination folder..." readonly>
+              <button id="select-dest" class="btn btn-secondary">Browse</button>
+            </div>
+          </div>
+
+          <div class="input-group checkbox-group">
+            <label>
+              <input type="checkbox" id="transfer-existing" checked>
+              Transfer existing files
+            </label>
+          </div>
+        </div>
+
+        <div class="action-buttons">
+          <button id="start-transfer" class="btn btn-primary">Start Transfer</button>
+          <button id="stop-transfer" class="btn btn-danger" disabled>Stop Transfer</button>
+        </div>
+      </section>
+
+      <section class="display-panel">
+        <h2>HDMI Display Control</h2>
+
+        <div class="display-select">
+          <label for="display-list">Select Display:</label>
+          <select id="display-list" class="display-dropdown">
+            <option value="">Loading displays...</option>
+          </select>
+        </div>
+
+        <div class="action-buttons">
+          <button id="open-display" class="btn btn-primary">Open on Display</button>
+          <button id="close-display" class="btn btn-secondary" disabled>Close Display</button>
+          <button id="refresh-displays" class="btn btn-secondary">Refresh</button>
+        </div>
+      </section>
+
+      <section class="stats-panel">
+        <h2>Transfer Statistics</h2>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-value" id="files-transferred">0</div>
+            <div class="stat-label">Files Transferred</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-value" id="bytes-transferred">0 B</div>
+            <div class="stat-label">Data Transferred</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-value" id="transfer-rate">0 B/s</div>
+            <div class="stat-label">Transfer Rate</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-value" id="uptime">0s</div>
+            <div class="stat-label">Uptime</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-value" id="queue-length">0</div>
+            <div class="stat-label">Queue Length</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-value" id="errors">0</div>
+            <div class="stat-label">Errors</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="log-panel">
+        <h2>Activity Log</h2>
+        <div id="activity-log" class="log-container"></div>
+      </section>
+    </main>
+
+    <footer>
+      <p>Faeweel v1.0.0 - Continuous File Transfer System</p>
+    </footer>
+  </div>
+
+  <script src="renderer.js"></script>
+</body>
+</html>

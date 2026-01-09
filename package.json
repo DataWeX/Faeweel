@@ -1,0 +1,51 @@
+{
+  "name": "faeweel",
+  "version": "1.0.0",
+  "description": "HDMI File Transfer Application - A flywheel-based continuous file transfer system with HDMI display output",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --dev",
+    "build": "electron-builder",
+    "test": "jest"
+  },
+  "keywords": [
+    "hdmi",
+    "file-transfer",
+    "electron",
+    "desktop-app",
+    "display"
+  ],
+  "author": "Faeweel Team",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^28.0.0",
+    "electron-builder": "^24.9.1",
+    "jest": "^29.7.0"
+  },
+  "dependencies": {
+    "chokidar": "^3.5.3",
+    "ws": "^8.16.0"
+  },
+  "build": {
+    "appId": "com.faeweel.hdmi-transfer",
+    "productName": "Faeweel",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "src/**/*",
+      "package.json"
+    ],
+    "mac": {
+      "category": "public.app-category.utilities"
+    },
+    "win": {
+      "target": "nsis"
+    },
+    "linux": {
+      "target": ["AppImage", "deb"],
+      "category": "Utility"
+    }
+  }
+}

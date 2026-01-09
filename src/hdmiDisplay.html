@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Faeweel - HDMI Display</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      overflow: hidden;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .display-container {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      padding: 60px;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 60px;
+    }
+
+    .header h1 {
+      font-size: 4em;
+      margin-bottom: 20px;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    .header p {
+      font-size: 1.5em;
+      opacity: 0.9;
+    }
+
+    .stats-display {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 40px;
+      flex: 1;
+    }
+
+    .stat-box {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      padding: 40px;
+      text-align: center;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .stat-value {
+      font-size: 4em;
+      font-weight: bold;
+      margin-bottom: 20px;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    .stat-label {
+      font-size: 1.5em;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      opacity: 0.9;
+    }
+
+    .status-indicator {
+      position: absolute;
+      top: 40px;
+      right: 40px;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      font-size: 1.3em;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      padding: 15px 30px;
+      border-radius: 50px;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .status-dot {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #27ae60;
+      animation: pulse 2s infinite;
+    }
+
+    .status-dot.inactive {
+      background: #95a5a6;
+      animation: none;
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.5;
+      }
+    }
+
+    .idle-message {
+      text-align: center;
+      font-size: 2em;
+      opacity: 0.7;
+    }
+
+    .recent-files {
+      position: absolute;
+      bottom: 40px;
+      left: 40px;
+      right: 40px;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border-radius: 15px;
+      padding: 30px;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    .recent-files h3 {
+      font-size: 1.5em;
+      margin-bottom: 15px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .file-entry {
+      padding: 10px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 8px;
+      margin-bottom: 10px;
+      font-size: 1.1em;
+    }
+  </style>
+</head>
+<body>
+  <div class="display-container">
+    <div class="status-indicator">
+      <div class="status-dot" id="status-dot"></div>
+      <span id="status-text">Idle</span>
+    </div>
+
+    <div class="header">
+      <h1>🔄 Faeweel</h1>
+      <p>File Transfer Monitor</p>
+    </div>
+
+    <div class="stats-display" id="stats-display">
+      <div class="stat-box">
+        <div class="stat-value" id="display-files">0</div>
+        <div class="stat-label">Files Transferred</div>
+      </div>
+
+      <div class="stat-box">
+        <div class="stat-value" id="display-bytes">0 B</div>
+        <div class="stat-label">Data Transferred</div>
+      </div>
+
+      <div class="stat-box">
+        <div class="stat-value" id="display-rate">0 B/s</div>
+        <div class="stat-label">Transfer Rate</div>
+      </div>
+
+      <div class="stat-box">
+        <div class="stat-value" id="display-uptime">0s</div>
+        <div class="stat-label">Uptime</div>
+      </div>
+
+      <div class="stat-box">
+        <div class="stat-value" id="display-queue">0</div>
+        <div class="stat-label">Queue Length</div>
+      </div>
+
+      <div class="stat-box">
+        <div class="stat-value" id="display-errors">0</div>
+        <div class="stat-label">Errors</div>
+      </div>
+    </div>
+
+    <div class="recent-files" id="recent-files">
+      <h3>Recent Transfers</h3>
+      <div id="file-list"></div>
+    </div>
+  </div>
+
+  <script src="hdmiRenderer.js"></script>
+</body>
+</html>
