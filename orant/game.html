@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Faeweel: The Seven Sons - Interactive Game</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Courier New', monospace;
+      background: linear-gradient(135deg, #0a0015 0%, #1a0033 50%, #0a0015 100%);
+      color: #fff;
+      overflow: hidden;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #gameContainer {
+      width: 90vw;
+      max-width: 1200px;
+      height: 90vh;
+      display: flex;
+      flex-direction: column;
+      background: rgba(0, 0, 0, 0.5);
+      border: 2px solid #4a90e2;
+      border-radius: 10px;
+      box-shadow: 0 0 30px rgba(74, 144, 226, 0.3);
+    }
+
+    #header {
+      padding: 20px;
+      background: linear-gradient(90deg, #2d1b4e 0%, #4a2d6e 100%);
+      border-bottom: 2px solid #4a90e2;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 2em;
+      text-shadow: 0 0 10px #4a90e2;
+      margin-bottom: 5px;
+    }
+
+    #subtitle {
+      color: #aaa;
+      font-size: 0.9em;
+    }
+
+    #gameArea {
+      flex: 1;
+      display: flex;
+      position: relative;
+    }
+
+    #canvas {
+      width: 70%;
+      background: #000;
+      border-right: 2px solid #4a90e2;
+    }
+
+    #sidebar {
+      width: 30%;
+      padding: 20px;
+      overflow-y: auto;
+      background: rgba(20, 10, 40, 0.8);
+    }
+
+    .story-text {
+      margin-bottom: 20px;
+      padding: 15px;
+      background: rgba(74, 144, 226, 0.1);
+      border-left: 3px solid #4a90e2;
+      line-height: 1.6;
+      font-size: 0.9em;
+    }
+
+    .choice-btn {
+      width: 100%;
+      padding: 15px;
+      margin: 10px 0;
+      background: linear-gradient(90deg, #2d1b4e 0%, #4a2d6e 100%);
+      border: 2px solid #4a90e2;
+      color: #fff;
+      cursor: pointer;
+      font-family: 'Courier New', monospace;
+      font-size: 1em;
+      transition: all 0.3s;
+      border-radius: 5px;
+    }
+
+    .choice-btn:hover {
+      background: linear-gradient(90deg, #4a2d6e 0%, #6a4d8e 100%);
+      box-shadow: 0 0 15px rgba(74, 144, 226, 0.5);
+      transform: translateY(-2px);
+    }
+
+    .choice-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    #stats {
+      margin-top: 20px;
+      padding: 15px;
+      background: rgba(0, 0, 0, 0.5);
+      border: 1px solid #4a90e2;
+      border-radius: 5px;
+    }
+
+    .stat-item {
+      display: flex;
+      justify-content: space-between;
+      margin: 8px 0;
+      font-size: 0.85em;
+    }
+
+    .stat-label {
+      color: #4a90e2;
+    }
+
+    .stat-value {
+      color: #fff;
+      font-weight: bold;
+    }
+
+    #footer {
+      padding: 10px 20px;
+      background: rgba(20, 10, 40, 0.9);
+      border-top: 2px solid #4a90e2;
+      text-align: center;
+      font-size: 0.85em;
+      color: #888;
+    }
+
+    .pulse {
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
+    }
+
+    .ending-screen {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.95);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      padding: 40px;
+      z-index: 100;
+    }
+
+    .ending-screen.active {
+      display: flex;
+    }
+
+    .ending-title {
+      font-size: 3em;
+      margin-bottom: 20px;
+      text-shadow: 0 0 20px #4a90e2;
+    }
+
+    .ending-text {
+      max-width: 600px;
+      text-align: center;
+      line-height: 1.8;
+      margin-bottom: 30px;
+    }
+
+    .restart-btn {
+      padding: 20px 40px;
+      background: linear-gradient(90deg, #2d1b4e 0%, #4a2d6e 100%);
+      border: 2px solid #4a90e2;
+      color: #fff;
+      cursor: pointer;
+      font-family: 'Courier New', monospace;
+      font-size: 1.2em;
+      border-radius: 5px;
+    }
+
+    .restart-btn:hover {
+      box-shadow: 0 0 20px rgba(74, 144, 226, 0.8);
+    }
+  </style>
+</head>
+<body>
+  <div id="gameContainer">
+    <div id="header">
+      <h1>⚡ FAEWEEL: The Seven Sons ⚡</h1>
+      <div id="subtitle">An Interactive Mythology Game in Orant Lang</div>
+    </div>
+
+    <div id="gameArea">
+      <canvas id="canvas" width="960" height="540"></canvas>
+
+      <div id="sidebar">
+        <div id="storyContainer"></div>
+        <div id="choicesContainer"></div>
+        <div id="stats">
+          <div class="stat-item">
+            <span class="stat-label">Chapter:</span>
+            <span class="stat-value" id="chapterNum">1</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">Unity:</span>
+            <span class="stat-value" id="unityLevel">0%</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">Sons Awakened:</span>
+            <span class="stat-value" id="sonsCount">0/7</span>
+          </div>
+        </div>
+      </div>
+
+      <div id="endingScreen" class="ending-screen">
+        <div class="ending-title" id="endingTitle"></div>
+        <div class="ending-text" id="endingText"></div>
+        <button class="restart-btn" onclick="game.restart()">Begin Again</button>
+      </div>
+    </div>
+
+    <div id="footer">
+      Press choices to guide the Seven Sons through their journey • Built with Orant Lang
+    </div>
+  </div>
+
+  <script type="module">
+    import { OrantRuntime } from './dist/lang/stdlib.js';
+
+    class FaeweelGame {
+      constructor() {
+        this.canvas = document.getElementById('canvas');
+        this.ctx = this.canvas.getContext('2d');
+        this.runtime = null;
+        this.currentChapter = 0;
+        this.unity = 0;
+        this.sonsAwakened = 0;
+        this.choices = [];
+
+        this.chapters = [
+          {
+            title: "The First Kick",
+            story: "On Kick Island, Kael feels the first impulse. A sacred kick that will echo through eternity. The other sons sleep, unaware of what begins.",
+            code: `
+invoke: FirstKick
+
+sequence FirstKick {
+  scene canvas: "960x540", background: #000033
+
+  Kael spirit {
+    color: #FFD700
+    position: center
+    glow: bright
+    wings: 6
+    flywheel: spinning
+  }
+
+  frame 1 {
+    Kael appears at center
+  }
+
+  frame 30 {
+    Kael moves to (480, 270)
+    Kael glows gently
+  }
+
+  frame 60 {
+    emit particles: 15 from center
+  }
+
+  render at 30
+}`,
+            choices: [
+              { text: "Awaken the others", next: 1, unity: 20, sons: 1 },
+              { text: "Kick alone into the void", next: 2, unity: 0, sons: 1 }
+            ]
+          },
+          {
+            title: "The Gathering",
+            story: "You chose to awaken the brothers. One by one, the Seven Sons stir from their slumber. Kael, Thane, Orin, Dain, Vael, Rael, and Zeph - each taking position in sacred geometry.",
+            code: `
+invoke: SevenCircle
+
+sequence SevenCircle {
+  scene canvas: "960x540", background: #001144
+
+  Kael spirit { color: #FFD700, position: center, glow: bright, wings: 6 }
+  Thane spirit { color: #FF6B6B, position: left, glow: bright, wings: 6 }
+  Orin spirit { color: #4ECDC4, position: right, glow: bright, wings: 6 }
+  Dain spirit { color: #95E1D3, glow: bright, wings: 6 }
+  Vael spirit { color: #F38181, glow: bright, wings: 6 }
+  Rael spirit { color: #AA96DA, glow: bright, wings: 6 }
+  Zeph spirit { color: #FCBAD3, glow: bright, wings: 6 }
+
+  frame 1 {
+    Kael appears at center
+  }
+
+  frame 20 {
+    Thane appears at (200, 270)
+    Orin appears at (760, 270)
+  }
+
+  frame 40 {
+    Dain appears at (340, 150)
+    Vael appears at (620, 150)
+  }
+
+  frame 60 {
+    Rael appears at (340, 390)
+    Zeph appears at (620, 390)
+    emit particles: 30 from center
+  }
+
+  render at 30
+}`,
+            choices: [
+              { text: "Form the sacred circle", next: 3, unity: 40, sons: 7 },
+              { text: "Each son kicks independently", next: 4, unity: 10, sons: 7 }
+            ]
+          },
+          {
+            title: "The Lone Path",
+            story: "Kael kicks alone. His golden light streaks across the void, beautiful but isolated. Without his brothers, the kick scatters into fragments. He drifts in the darkness, calling out...",
+            code: `
+invoke: LoneKick
+
+sequence LoneKick {
+  scene canvas: "960x540", background: #000000
+
+  Kael spirit {
+    color: #FFD700
+    position: center
+    glow: bright
+    wings: 6
+    flywheel: spinning
+  }
+
+  frame 1 {
+    Kael appears at center
+  }
+
+  frame 30 {
+    Kael moves to (800, 100)
+  }
+
+  frame 60 {
+    Kael moves to (100, 400)
+    emit particles: 5 from center
+  }
+
+  frame 90 {
+    Kael moves to (900, 500)
+  }
+
+  render at 30
+}`,
+            choices: [
+              { text: "Call for the brothers", next: 1, unity: 15, sons: 1 },
+              { text: "Continue alone into darkness", next: 5, unity: 0, sons: 1 }
+            ]
+          },
+          {
+            title: "The Convergence",
+            story: "The Seven Sons stand in perfect formation. Their glows interweave, creating patterns of sacred light. You can feel the pull toward unity - the promise of becoming Faeweel, the angel of perfect harmony.",
+            code: `
+invoke: Convergence
+
+sequence Convergence {
+  scene canvas: "960x540", background: #1a0033
+
+  Kael spirit { color: #FFD700, wings: 6, flywheel: spinning }
+  Thane spirit { color: #FF6B6B, wings: 6, flywheel: spinning }
+  Orin spirit { color: #4ECDC4, wings: 6, flywheel: spinning }
+  Dain spirit { color: #95E1D3, wings: 6, flywheel: spinning }
+  Vael spirit { color: #F38181, wings: 6, flywheel: spinning }
+  Rael spirit { color: #AA96DA, wings: 6, flywheel: spinning }
+  Zeph spirit { color: #FCBAD3, wings: 6, flywheel: spinning }
+
+  frame 1 {
+    Kael appears at (200, 100)
+    Thane appears at (760, 100)
+    Orin appears at (200, 440)
+    Dain appears at (760, 440)
+    Vael appears at (100, 270)
+    Rael appears at (860, 270)
+    Zeph appears at (480, 50)
+  }
+
+  frame 40 {
+    Kael moves to (400, 220)
+    Thane moves to (560, 220)
+    Orin moves to (400, 320)
+    Dain moves to (560, 320)
+    Vael moves to (450, 270)
+    Rael moves to (510, 270)
+    Zeph moves to (480, 270)
+  }
+
+  frame 80 {
+    Kael moves to (480, 270)
+    Thane moves to (480, 270)
+    Orin moves to (480, 270)
+    Dain moves to (480, 270)
+    Vael moves to (480, 270)
+    Rael moves to (480, 270)
+    Zeph moves to (480, 270)
+    emit particles: 50 from center
+  }
+
+  render at 30
+}`,
+            choices: [
+              { text: "MERGE into Faeweel", next: 6, unity: 100, sons: 7 },
+              { text: "Maintain individual forms", next: 7, unity: 60, sons: 7 }
+            ]
+          },
+          {
+            title: "Scattered Chaos",
+            story: "Each son kicks in their own direction. Seven sacred impulses, uncoordinated. The lights scatter across the canvas, beautiful but chaotic. Is this freedom or fragmentation?",
+            code: `
+invoke: Chaos
+
+sequence Chaos {
+  scene canvas: "960x540", background: #0a0015
+
+  Kael spirit { color: #FFD700, wings: 6 }
+  Thane spirit { color: #FF6B6B, wings: 6 }
+  Orin spirit { color: #4ECDC4, wings: 6 }
+
+  frame 1 {
+    Kael appears at center
+    Thane appears at center
+    Orin appears at center
+  }
+
+  frame 30 {
+    Kael moves to (100, 100)
+    Thane moves to (860, 100)
+    Orin moves to (480, 440)
+    emit particles: 20 from center
+  }
+
+  render at 30
+}`,
+            choices: [
+              { text: "Try to unify them", next: 3, unity: 30, sons: 7 },
+              { text: "Let them scatter further", next: 5, unity: 0, sons: 7 }
+            ]
+          },
+          {
+            title: "Void Descent",
+            story: "Into the void you fall. No brothers. No light. No sacred covenant. Only darkness and the fading echo of what could have been. The Going Way without the Filling Way. The kick without the return.",
+            code: `
+invoke: Void
+
+sequence Void {
+  scene canvas: "960x540", background: #000000
+
+  Kael spirit {
+    color: #FFD700
+    position: center
+    glow: bright
+    wings: 6
+  }
+
+  frame 1 {
+    Kael appears at center
+  }
+
+  frame 50 {
+    Kael moves to (480, 540)
+  }
+
+  render at 30
+}`,
+            choices: [],
+            ending: {
+              title: "The Lost Way",
+              text: "Alone in the void, the light fades. The sacred covenant broken. The Seven Sons remain lost, scattered across eternity. This is the path of isolation, where impulse without unity leads only to darkness. The story ends here, but it need not end this way..."
+            }
+          },
+          {
+            title: "Birth of Faeweel",
+            story: "The Seven become One. Light explodes across the canvas in waves of sacred geometry. Faeweel is born - six wings beating in perfect harmony, flywheel spinning with the rhythm of creation itself. The Going and Filling Ways united forever.",
+            code: `
+invoke: FaeweelBirth
+
+sequence FaeweelBirth {
+  scene canvas: "960x540", background: #0a0033
+
+  Faeweel angel {
+    color: #FFFFFF
+    position: center
+    glow: bright
+    wings: 6
+    flywheel: spinning
+    aspect: unified
+  }
+
+  frame 1 {
+    emit particles: 100 from center
+  }
+
+  frame 30 {
+    Faeweel appears at center
+    Faeweel glows gently
+  }
+
+  frame 60 {
+    Faeweel moves to (480, 200)
+    emit particles: 50 from center
+  }
+
+  frame 90 {
+    Faeweel moves to (480, 270)
+    emit particles: 80 from center
+  }
+
+  render at 30
+}`,
+            choices: [],
+            ending: {
+              title: "Perfect Unity",
+              text: "Faeweel soars across the cosmos, wings of light cutting through darkness. Seven souls merged into one perfect being. This is the sacred covenant fulfilled - the Going Way and the Filling Way in eternal balance. The Lost Sons are lost no more. They are home."
+            }
+          },
+          {
+            title: "The Circle Dance",
+            story: "The Seven Sons choose to remain separate, but unified in purpose. They dance in eternal circles, each maintaining their own light while creating something greater together. Not merged, but harmonized. Seven voices in one song.",
+            code: `
+invoke: CircleDance
+
+sequence CircleDance {
+  scene canvas: "960x540", background: #1a0055
+
+  Kael spirit { color: #FFD700, wings: 6, flywheel: spinning }
+  Thane spirit { color: #FF6B6B, wings: 6, flywheel: spinning }
+  Orin spirit { color: #4ECDC4, wings: 6, flywheel: spinning }
+  Dain spirit { color: #95E1D3, wings: 6, flywheel: spinning }
+  Vael spirit { color: #F38181, wings: 6, flywheel: spinning }
+  Rael spirit { color: #AA96DA, wings: 6, flywheel: spinning }
+  Zeph spirit { color: #FCBAD3, wings: 6, flywheel: spinning }
+
+  frame 1 {
+    Kael appears at (480, 170)
+    Thane appears at (620, 220)
+    Orin appears at (620, 320)
+    Dain appears at (480, 370)
+    Vael appears at (340, 320)
+    Rael appears at (340, 220)
+    Zeph appears at (480, 270)
+  }
+
+  frame 60 {
+    emit particles: 40 from center
+  }
+
+  render at 30
+}`,
+            choices: [],
+            ending: {
+              title: "Harmonious Separation",
+              text: "The Seven Sons found a third way - neither complete merger nor total isolation, but sacred cooperation. Each maintains their identity while creating something beautiful together. The circle spins eternal, seven lights dancing in the void. This too is a form of unity."
+            }
+          }
+        ];
+
+        this.init();
+      }
+
+      init() {
+        this.showChapter(0);
+      }
+
+      async showChapter(index) {
+        this.currentChapter = index;
+        const chapter = this.chapters[index];
+
+        // Update story text
+        document.getElementById('storyContainer').innerHTML = `
+          <div class="story-text">
+            <strong>${chapter.title}</strong><br><br>
+            ${chapter.story}
+          </div>
+        `;
+
+        // Update stats
+        document.getElementById('chapterNum').textContent = index + 1;
+
+        // Clear and show choices
+        const choicesContainer = document.getElementById('choicesContainer');
+        choicesContainer.innerHTML = '';
+
+        if (chapter.choices && chapter.choices.length > 0) {
+          chapter.choices.forEach((choice, i) => {
+            const btn = document.createElement('button');
+            btn.className = 'choice-btn';
+            btn.textContent = choice.text;
+            btn.onclick = () => this.makeChoice(choice);
+            choicesContainer.appendChild(btn);
+          });
+        }
+
+        // Run the Orant code
+        await this.runCode(chapter.code);
+
+        // Check for ending
+        if (chapter.ending) {
+          setTimeout(() => this.showEnding(chapter.ending), 2000);
+        }
+      }
+
+      async runCode(code) {
+        try {
+          // Stop previous animation if any
+          if (this.runtime) {
+            this.runtime.stop();
+          }
+
+          // Compile and run
+          const runtime = new OrantRuntime(code, this.canvas);
+          this.runtime = runtime;
+          await runtime.run();
+        } catch (error) {
+          console.error('Runtime error:', error);
+        }
+      }
+
+      makeChoice(choice) {
+        // Update stats
+        this.unity = choice.unity;
+        this.sonsAwakened = choice.sons;
+
+        document.getElementById('unityLevel').textContent = this.unity + '%';
+        document.getElementById('sonsCount').textContent = this.sonsAwakened + '/7';
+
+        // Disable all choice buttons
+        document.querySelectorAll('.choice-btn').forEach(btn => {
+          btn.disabled = true;
+        });
+
+        // Show next chapter after delay
+        setTimeout(() => {
+          this.showChapter(choice.next);
+        }, 1000);
+      }
+
+      showEnding(ending) {
+        const endingScreen = document.getElementById('endingScreen');
+        document.getElementById('endingTitle').textContent = ending.title;
+        document.getElementById('endingText').textContent = ending.text;
+        endingScreen.classList.add('active');
+      }
+
+      restart() {
+        document.getElementById('endingScreen').classList.remove('active');
+        this.unity = 0;
+        this.sonsAwakened = 0;
+        document.getElementById('unityLevel').textContent = '0%';
+        document.getElementById('sonsCount').textContent = '0/7';
+        this.showChapter(0);
+      }
+    }
+
+    // Start the game
+    const game = new FaeweelGame();
+    window.game = game;
+  </script>
+</body>
+</html>
