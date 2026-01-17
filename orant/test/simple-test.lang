@@ -1,0 +1,26 @@
+# Simple Test Program
+# Tests basic lang compilation
+
+invoke TestAngel as Angel {
+  color: "#F8F9FA"
+  wings: 6
+  flywheel: "spinning"
+}
+
+sequence SimpleTest {
+  duration: 1s
+
+  frame 1 {
+    TestAngel appears at center
+  }
+
+  frame 10 {
+    TestAngel glows bright
+  }
+
+  frame 20 {
+    TestAngel floats gently
+  }
+}
+
+render SimpleTest
