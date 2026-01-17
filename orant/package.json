@@ -1,0 +1,24 @@
+{
+  "name": "orant",
+  "version": "1.0.0",
+  "description": "Prayer-driven animation language for Faeweel angel mythology",
+  "main": "compiler.js",
+  "type": "module",
+  "scripts": {
+    "compile": "node compiler.js",
+    "run": "node runtime.js",
+    "test": "node test/test-compiler.js"
+  },
+  "keywords": [
+    "animation",
+    "dsl",
+    "compiler",
+    "language",
+    "spiritual",
+    "faeweel"
+  ],
+  "author": "Faeweel Team",
+  "license": "MIT",
+  "dependencies": {},
+  "devDependencies": {}
+}

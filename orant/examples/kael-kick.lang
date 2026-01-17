@@ -1,0 +1,46 @@
+# Kael's Kick - The First Impulse
+# Frame 12-15 from the Faeweel Flipbook Movie
+
+invoke Kael as Son {
+  color: "#FF6B35"
+  form: "translucent humanoid"
+  glow: bright
+  position: center
+}
+
+invoke DataSphere as DataSphere {
+  color: "#FFFFFF"
+  position: "right of Kael"
+}
+
+sequence FirstKick {
+  duration: 2s
+
+  frame 1 {
+    Kael appears at (800, 500)
+    DataSphere appears at (900, 500)
+  }
+
+  frame 5 {
+    Kael glows bright
+  }
+
+  frame 10 {
+    DataSphere moves from (900, 500) to (1200, 450)
+    emit particles: 20
+  }
+
+  frame 15 {
+    DataSphere moves to (1400, 400)
+  }
+
+  frame 20 {
+    Kael floats gently
+  }
+}
+
+render scene TheKicking {
+  background: "cosmic void"
+  invoke: FirstKick
+  canvas: 1920x1080
+}

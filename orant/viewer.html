@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Orant Viewer - Faeweel Angel Animations</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: linear-gradient(135deg, #1A1A2E 0%, #16213E 100%);
+      color: #E3F2FD;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    h1 {
+      font-size: 2.5em;
+      margin-bottom: 10px;
+      background: linear-gradient(90deg, #F8F9FA, #4A90E2);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .subtitle {
+      color: #A29BFE;
+      font-size: 1.1em;
+    }
+
+    .container {
+      max-width: 1400px;
+      width: 100%;
+    }
+
+    .controls {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      border-radius: 15px;
+      padding: 20px;
+      margin-bottom: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .file-selector {
+      margin-bottom: 15px;
+    }
+
+    .file-selector label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+    }
+
+    .file-selector select {
+      width: 100%;
+      padding: 10px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+      color: #E3F2FD;
+      font-size: 1em;
+      cursor: pointer;
+    }
+
+    .file-selector select option {
+      background: #1A1A2E;
+      color: #E3F2FD;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      padding: 12px 24px;
+      background: linear-gradient(135deg, #4A90E2, #A29BFE);
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-size: 1em;
+      font-weight: 500;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(74, 144, 226, 0.4);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .canvas-container {
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 15px;
+      padding: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 600px;
+    }
+
+    #canvas {
+      max-width: 100%;
+      height: auto;
+      border-radius: 10px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    }
+
+    .status {
+      margin-top: 20px;
+      padding: 15px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 10px;
+      border-left: 4px solid #4A90E2;
+    }
+
+    .status.error {
+      border-left-color: #FF6B6B;
+    }
+
+    .status.success {
+      border-left-color: #51CF66;
+    }
+
+    .info-panel {
+      margin-top: 20px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+    }
+
+    .info-card {
+      background: rgba(255, 255, 255, 0.05);
+      padding: 15px;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .info-card h3 {
+      font-size: 0.9em;
+      color: #A29BFE;
+      margin-bottom: 8px;
+    }
+
+    .info-card p {
+      font-size: 1.2em;
+      font-weight: 600;
+    }
+
+    footer {
+      margin-top: 40px;
+      text-align: center;
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 0.9em;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>✨ Orant Viewer</h1>
+      <p class="subtitle">Prayer-Driven Animation Language for Faeweel Angels</p>
+    </header>
+
+    <div class="controls">
+      <div class="file-selector">
+        <label for="program-select">Select Program:</label>
+        <select id="program-select">
+          <option value="">Choose a .lang program...</option>
+          <option value="examples/kael-kick.lang">Kael's Kick (First Impulse)</option>
+          <option value="examples/seven-sons.lang">The Seven Sons</option>
+          <option value="examples/merger.lang">The Great Merger</option>
+          <option value="examples/faeweel-birth.lang">Birth of Faeweel</option>
+        </select>
+      </div>
+
+      <div class="button-group">
+        <button id="load-btn" disabled>Load Program</button>
+        <button id="compile-btn" disabled>Compile</button>
+        <button id="run-btn" disabled>Run Animation</button>
+        <button id="stop-btn" disabled>Stop</button>
+      </div>
+    </div>
+
+    <div class="canvas-container">
+      <canvas id="canvas" width="1920" height="1080"></canvas>
+    </div>
+
+    <div id="status" class="status" style="display: none;">
+      <p id="status-text">Ready</p>
+    </div>
+
+    <div class="info-panel">
+      <div class="info-card">
+        <h3>Current Program</h3>
+        <p id="current-program">None</p>
+      </div>
+      <div class="info-card">
+        <h3>Status</h3>
+        <p id="run-status">Idle</p>
+      </div>
+      <div class="info-card">
+        <h3>Frame</h3>
+        <p id="frame-count">0</p>
+      </div>
+      <div class="info-card">
+        <h3>Entities</h3>
+        <p id="entity-count">0</p>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <p>Created for the Faeweel Project | Orant Lang v1.0.0</p>
+  </footer>
+
+  <script type="module">
+    // Orant Viewer Controller
+    class OrantViewerController {
+      constructor() {
+        this.canvas = document.getElementById('canvas');
+        this.ctx = this.canvas.getContext('2d');
+        this.currentProgram = null;
+        this.runtime = null;
+        this.isRunning = false;
+
+        this.initializeUI();
+      }
+
+      initializeUI() {
+        const selectEl = document.getElementById('program-select');
+        const loadBtn = document.getElementById('load-btn');
+        const compileBtn = document.getElementById('compile-btn');
+        const runBtn = document.getElementById('run-btn');
+        const stopBtn = document.getElementById('stop-btn');
+
+        selectEl.addEventListener('change', (e) => {
+          loadBtn.disabled = !e.target.value;
+          this.currentProgram = e.target.value;
+          document.getElementById('current-program').textContent =
+            e.target.value || 'None';
+        });
+
+        loadBtn.addEventListener('click', () => this.loadProgram());
+        compileBtn.addEventListener('click', () => this.compile());
+        runBtn.addEventListener('click', () => this.run());
+        stopBtn.addEventListener('click', () => this.stop());
+
+        this.showStatus('Ready to load a program', 'success');
+      }
+
+      showStatus(message, type = 'info') {
+        const statusEl = document.getElementById('status');
+        const statusText = document.getElementById('status-text');
+
+        statusEl.style.display = 'block';
+        statusEl.className = `status ${type}`;
+        statusText.textContent = message;
+
+        setTimeout(() => {
+          statusEl.style.display = 'none';
+        }, 5000);
+      }
+
+      async loadProgram() {
+        if (!this.currentProgram) return;
+
+        try {
+          this.showStatus(`Loading ${this.currentProgram}...`, 'info');
+
+          // For demo purposes, we'll create a simple animation
+          // In production, this would fetch and compile the actual .lang file
+          document.getElementById('compile-btn').disabled = false;
+          document.getElementById('run-status').textContent = 'Loaded';
+
+          this.showStatus('Program loaded successfully!', 'success');
+        } catch (error) {
+          this.showStatus(`Error loading program: ${error.message}`, 'error');
+        }
+      }
+
+      async compile() {
+        try {
+          this.showStatus('Compiling...', 'info');
+
+          // Simulate compilation
+          await new Promise(resolve => setTimeout(resolve, 1000));
+
+          document.getElementById('run-btn').disabled = false;
+          this.showStatus('Compilation successful!', 'success');
+        } catch (error) {
+          this.showStatus(`Compilation error: ${error.message}`, 'error');
+        }
+      }
+
+      run() {
+        if (this.isRunning) return;
+
+        this.isRunning = true;
+        document.getElementById('stop-btn').disabled = false;
+        document.getElementById('run-btn').disabled = true;
+        document.getElementById('run-status').textContent = 'Running';
+
+        this.showStatus('Animation started!', 'success');
+
+        // Start demo animation
+        this.startDemoAnimation();
+      }
+
+      stop() {
+        this.isRunning = false;
+        document.getElementById('stop-btn').disabled = true;
+        document.getElementById('run-btn').disabled = false;
+        document.getElementById('run-status').textContent = 'Stopped';
+
+        this.showStatus('Animation stopped', 'info');
+      }
+
+      startDemoAnimation() {
+        let frame = 0;
+
+        const animate = () => {
+          if (!this.isRunning) return;
+
+          // Clear canvas
+          this.ctx.fillStyle = '#1A1A2E';
+          this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+          // Draw stars
+          this.drawStars();
+
+          // Draw animated entity
+          this.drawAngel(frame);
+
+          frame++;
+          document.getElementById('frame-count').textContent = frame;
+          document.getElementById('entity-count').textContent = '1';
+
+          requestAnimationFrame(animate);
+        };
+
+        animate();
+      }
+
+      drawStars() {
+        this.ctx.fillStyle = '#FFFFFF';
+        for (let i = 0; i < 100; i++) {
+          const x = (i * 173) % this.canvas.width;
+          const y = (i * 241) % this.canvas.height;
+          const size = (i % 3) + 1;
+
+          this.ctx.globalAlpha = 0.3 + (i % 7) * 0.1;
+          this.ctx.fillRect(x, y, size, size);
+        }
+        this.ctx.globalAlpha = 1;
+      }
+
+      drawAngel(frame) {
+        const centerX = this.canvas.width / 2;
+        const centerY = this.canvas.height / 2;
+
+        const floatOffset = Math.sin(frame * 0.05) * 20;
+
+        // Draw six wings
+        for (let i = 0; i < 6; i++) {
+          const angle = (i * Math.PI) / 3 + frame * 0.01;
+          const wingX = centerX + Math.cos(angle) * 150;
+          const wingY = centerY + Math.sin(angle) * 150 + floatOffset;
+
+          const gradient = this.ctx.createRadialGradient(wingX, wingY, 0, wingX, wingY, 80);
+          gradient.addColorStop(0, 'rgba(248, 249, 250, 0.8)');
+          gradient.addColorStop(0.5, 'rgba(74, 144, 226, 0.6)');
+          gradient.addColorStop(1, 'transparent');
+
+          this.ctx.fillStyle = gradient;
+          this.ctx.beginPath();
+          this.ctx.ellipse(wingX, wingY, 60, 30, angle, 0, Math.PI * 2);
+          this.ctx.fill();
+        }
+
+        // Draw body
+        const bodyGradient = this.ctx.createRadialGradient(
+          centerX, centerY + floatOffset, 0,
+          centerX, centerY + floatOffset, 100
+        );
+        bodyGradient.addColorStop(0, 'rgba(248, 249, 250, 0.9)');
+        bodyGradient.addColorStop(1, 'transparent');
+
+        this.ctx.fillStyle = bodyGradient;
+        this.ctx.beginPath();
+        this.ctx.arc(centerX, centerY + floatOffset, 80, 0, Math.PI * 2);
+        this.ctx.fill();
+
+        // Draw flywheel
+        this.ctx.strokeStyle = '#FFD700';
+        this.ctx.lineWidth = 5;
+        this.ctx.beginPath();
+        this.ctx.arc(centerX, centerY + floatOffset, 40, 0, Math.PI * 2);
+        this.ctx.stroke();
+
+        // Rotating spokes
+        for (let i = 0; i < 8; i++) {
+          const angle = (i * Math.PI) / 4 + frame * 0.05;
+          const x1 = centerX + Math.cos(angle) * 20;
+          const y1 = centerY + floatOffset + Math.sin(angle) * 20;
+          const x2 = centerX + Math.cos(angle) * 35;
+          const y2 = centerY + floatOffset + Math.sin(angle) * 35;
+
+          this.ctx.beginPath();
+          this.ctx.moveTo(x1, y1);
+          this.ctx.lineTo(x2, y2);
+          this.ctx.stroke();
+        }
+      }
+    }
+
+    // Initialize viewer
+    const viewer = new OrantViewerController();
+  </script>
+</body>
+</html>

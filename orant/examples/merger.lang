@@ -1,0 +1,83 @@
+# The Great Merger - Seven Becoming One
+# Frames 69-80 from the Faeweel Flipbook Movie
+
+invoke Kael as Son {
+  color: "#FF6B35"
+}
+
+invoke Jaren as Son {
+  color: "#FFD23F"
+}
+
+invoke Solen as Son {
+  color: "#E3F2FD"
+}
+
+invoke Therin as Son {
+  color: "#9B59B6"
+}
+
+invoke Marlowe as Son {
+  color: "#1ABC9C"
+}
+
+invoke Cassian as Son {
+  color: "#BDC3C7"
+}
+
+invoke Evren as Son {
+  color: "#F4D03F"
+}
+
+sequence TheConvergence {
+  duration: 8s
+
+  frame 1 {
+    Kael appears at (960, 340)
+    Jaren appears at (1160, 440)
+    Solen appears at (1160, 640)
+    Therin appears at (960, 740)
+    Marlowe appears at (760, 640)
+    Cassian appears at (760, 440)
+    Evren appears at (960, 540)
+  }
+
+  frame 10 {
+    Kael moves from (960, 340) to (960, 500)
+    Jaren moves from (1160, 440) to (960, 500)
+    Solen moves from (1160, 640) to (960, 500)
+    Therin moves from (960, 740) to (960, 500)
+    Marlowe moves from (760, 640) to (960, 500)
+    Cassian moves from (760, 440) to (960, 500)
+    Evren moves from (960, 540) to (960, 500)
+  }
+
+  frame 20 {
+    Kael glows bright
+    Jaren glows bright
+    Solen glows bright
+    Therin glows bright
+    Marlowe glows bright
+    Cassian glows bright
+    Evren glows bright
+  }
+
+  frame 30 {
+    Kael merges with Evren
+    Jaren merges with Evren
+    Solen merges with Evren
+    Therin merges with Evren
+    Marlowe merges with Evren
+    Cassian merges with Evren
+  }
+
+  frame 40 {
+    emit particles: 100
+  }
+}
+
+render scene TheMerger {
+  background: "cosmic void"
+  invoke: TheConvergence
+  canvas: 1920x1080
+}

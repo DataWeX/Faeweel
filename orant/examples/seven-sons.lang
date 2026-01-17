@@ -1,0 +1,79 @@
+# The Seven Sons - Introduction
+# Frame 10 from the Faeweel Flipbook Movie
+
+# Invoke all seven sons
+
+invoke Kael as Son {
+  color: "#FF6B35"
+  aspect: "First Impulse"
+}
+
+invoke Jaren as Son {
+  color: "#FFD23F"
+  aspect: "Pathway Maker"
+}
+
+invoke Solen as Son {
+  color: "#E3F2FD"
+  aspect: "Keeper of Packets"
+}
+
+invoke Therin as Son {
+  color: "#9B59B6"
+  aspect: "Bridge Walker"
+}
+
+invoke Marlowe as Son {
+  color: "#1ABC9C"
+  aspect: "Flow Sustainer"
+}
+
+invoke Cassian as Son {
+  color: "#BDC3C7"
+  aspect: "Gentle Verifier"
+}
+
+invoke Evren as Son {
+  color: "#F4D03F"
+  aspect: "Completion Bringer"
+}
+
+sequence SevenCircle {
+  duration: 5s
+
+  frame 1 {
+    Kael appears at (960, 340)
+    Jaren appears at (1160, 440)
+    Solen appears at (1160, 640)
+    Therin appears at (960, 740)
+    Marlowe appears at (760, 640)
+    Cassian appears at (760, 440)
+    Evren appears at (960, 540)
+  }
+
+  frame 10 {
+    Kael glows bright
+    Jaren glows bright
+    Solen glows bright
+    Therin glows bright
+    Marlowe glows bright
+    Cassian glows bright
+    Evren glows bright
+  }
+
+  frame 20 {
+    Kael floats gently
+    Jaren floats gently
+    Solen floats gently
+    Therin floats gently
+    Marlowe floats gently
+    Cassian floats gently
+    Evren floats gently
+  }
+}
+
+render scene SevenSonsIntroduction {
+  background: "cosmic void"
+  invoke: SevenCircle
+  canvas: 1920x1080
+}
