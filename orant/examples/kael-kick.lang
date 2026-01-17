@@ -42,5 +42,5 @@ sequence FirstKick {
 render scene TheKicking {
   background: "cosmic void"
   invoke: FirstKick
-  canvas: 1920x1080
+  canvas: "1920x1080"
 }
