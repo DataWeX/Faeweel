@@ -1,0 +1,47 @@
+{
+  "app": {
+    "name": "Faeweel",
+    "version": "1.0.0",
+    "autoStart": false,
+    "minimizeToTray": false
+  },
+  "transfer": {
+    "defaultSource": "",
+    "defaultDestination": "",
+    "transferExistingByDefault": true,
+    "preserveTimestamps": true,
+    "preservePermissions": false,
+    "maxConcurrentTransfers": 1,
+    "retryOnError": true,
+    "maxRetries": 3,
+    "watchOptions": {
+      "stabilityThreshold": 2000,
+      "pollInterval": 100,
+      "awaitWriteFinish": true
+    }
+  },
+  "display": {
+    "defaultDisplayMode": "dashboard",
+    "updateInterval": 1000,
+    "maxRecentFiles": 5,
+    "autoOpenOnStart": false,
+    "preferredDisplayId": null
+  },
+  "logging": {
+    "maxLogEntries": 100,
+    "logToFile": false,
+    "logFilePath": "./logs/faeweel.log",
+    "logLevel": "info"
+  },
+  "ui": {
+    "theme": "default",
+    "confirmOnStop": false,
+    "showNotifications": true,
+    "soundOnComplete": false
+  },
+  "performance": {
+    "statsUpdateInterval": 1000,
+    "queueCheckInterval": 500,
+    "maxQueueSize": 1000
+  }
+}
