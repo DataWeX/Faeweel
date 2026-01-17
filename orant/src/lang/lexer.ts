@@ -222,12 +222,6 @@ export class Lexer {
         continue;
       }
 
-      // Comments
-      if (char === '#') {
-        this.skipComment();
-        continue;
-      }
-
       // Newline
       if (char === '\n') {
         const token = new Token(TokenType.NEWLINE, '\\n', this.line, this.column);
@@ -242,9 +236,15 @@ export class Lexer {
         continue;
       }
 
-      // Colors
-      if (char === '#') {
+      // Colors (check before comments!)
+      if (char === '#' && this.peekChar() && /[0-9A-Fa-f]/.test(this.peekChar()!)) {
         this.tokens.push(this.readColor());
+        continue;
+      }
+
+      // Comments (after color check)
+      if (char === '#') {
+        this.skipComment();
         continue;
       }
 

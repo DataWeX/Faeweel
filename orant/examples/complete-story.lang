@@ -1,0 +1,204 @@
+# Advanced Orant Example - The Complete Birth Sequence
+# Demonstrates advanced features and complex animation sequences
+
+# Define all characters
+invoke Kael as Son {
+  color: "#FF6B35"
+  aspect: "First Impulse"
+}
+
+invoke Jaren as Son {
+  color: "#FFD23F"
+  aspect: "Pathway Maker"
+}
+
+invoke Solen as Son {
+  color: "#E3F2FD"
+  aspect: "Keeper of Packets"
+}
+
+invoke Therin as Son {
+  color: "#9B59B6"
+  aspect: "Bridge Walker"
+}
+
+invoke Marlowe as Son {
+  color: "#1ABC9C"
+  aspect: "Flow Sustainer"
+}
+
+invoke Cassian as Son {
+  color: "#BDC3C7"
+  aspect: "Gentle Verifier"
+}
+
+invoke Evren as Son {
+  color: "#F4D03F"
+  aspect: "Completion Bringer"
+}
+
+invoke Faeweel as Angel {
+  color: "#F8F9FA"
+  wings: 6
+  flywheel: "spinning"
+}
+
+invoke KickIsland as Island {
+  color: "#FF6B35"
+}
+
+invoke JackIsland as Island {
+  color: "#4A90E2"
+}
+
+# Act 1: The Seven Sons Appear
+sequence Act1_Appearance {
+  duration: "10s"
+
+  frame 1 {
+    KickIsland appears at (300, 540)
+    JackIsland appears at (1620, 540)
+  }
+
+  frame 10 {
+    Kael appears at (960, 340)
+    Kael fades in
+  }
+
+  frame 15 {
+    Jaren appears at (1160, 440)
+    Jaren fades in
+  }
+
+  frame 20 {
+    Solen appears at (1160, 640)
+    Solen fades in
+  }
+
+  frame 25 {
+    Therin appears at (960, 740)
+    Therin fades in
+  }
+
+  frame 30 {
+    Marlowe appears at (760, 640)
+    Marlowe fades in
+  }
+
+  frame 35 {
+    Cassian appears at (760, 440)
+    Cassian fades in
+  }
+
+  frame 40 {
+    Evren appears at (960, 540)
+    Evren fades in
+  }
+
+  frame 50 {
+    Kael glows bright
+    Jaren glows bright
+    Solen glows bright
+    Therin glows bright
+    Marlowe glows bright
+    Cassian glows bright
+    Evren glows bright
+  }
+
+  frame 60 {
+    emit particles: 70
+  }
+}
+
+# Act 2: The Convergence
+sequence Act2_Convergence {
+  duration: "15s"
+
+  frame 1 {
+    Kael moves to (960, 500)
+    Jaren moves to (960, 500)
+    Solen moves to (960, 500)
+    Therin moves to (960, 500)
+    Marlowe moves to (960, 500)
+    Cassian moves to (960, 500)
+    Evren moves to (960, 500)
+  }
+
+  frame 20 {
+    Kael glows bright
+    Jaren glows bright
+    Solen glows bright
+    Therin glows bright
+    Marlowe glows bright
+    Cassian glows bright
+    Evren glows bright
+  }
+
+  frame 30 {
+    emit particles: 100
+  }
+
+  frame 40 {
+    Kael merges with Evren
+    Jaren merges with Evren
+    Solen merges with Evren
+    Therin merges with Evren
+    Marlowe merges with Evren
+    Cassian merges with Evren
+  }
+
+  frame 50 {
+    emit particles: 150
+  }
+
+  frame 60 {
+    Kael fades out
+    Jaren fades out
+    Solen fades out
+    Therin fades out
+    Marlowe fades out
+    Cassian fades out
+  }
+}
+
+# Act 3: Birth of Faeweel
+sequence Act3_Birth {
+  duration: "12s"
+
+  frame 1 {
+    emit particles: 200
+  }
+
+  frame 10 {
+    Faeweel appears at (960, 540)
+    Faeweel fades in
+  }
+
+  frame 20 {
+    Faeweel glows bright
+  }
+
+  frame 30 {
+    emit particles: 100
+  }
+
+  frame 40 {
+    Faeweel floats gently
+  }
+
+  frame 50 {
+    KickIsland glows bright
+    JackIsland glows bright
+  }
+
+  frame 60 {
+    emit particles: 80
+  }
+}
+
+# Main render - complete story
+render scene CompleteStory {
+  background: "cosmic void"
+  invoke: Act1_Appearance
+  canvas: "1920x1080"
+}

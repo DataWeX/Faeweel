@@ -11,7 +11,8 @@
     "run": "node dist/runtime.js",
     "test": "npm run build && node dist/test/test-compiler.js",
     "dev": "tsc --watch",
-    "clean": "rm -rf dist"
+    "clean": "rm -rf dist",
+    "examples": "./compile-all-examples.sh"
   },
   "keywords": [
     "animation",

@@ -1,0 +1,149 @@
+{
+  "Invoke Entity": {
+    "prefix": "invoke",
+    "body": [
+      "invoke ${1:EntityName} as ${2|Son,Angel,Island,DataSphere|} {",
+      "  color: \"${3:#FFFFFF}\"",
+      "  ${4:property}: ${5:value}",
+      "}"
+    ],
+    "description": "Invoke an entity"
+  },
+  "Invoke Son": {
+    "prefix": "invokeson",
+    "body": [
+      "invoke ${1:Name} as Son {",
+      "  color: \"${2:#FF6B35}\"",
+      "  aspect: \"${3:Aspect Name}\"",
+      "}"
+    ],
+    "description": "Invoke a Son entity"
+  },
+  "Invoke Angel": {
+    "prefix": "invokeangel",
+    "body": [
+      "invoke ${1:Name} as Angel {",
+      "  color: \"#F8F9FA\"",
+      "  wings: 6",
+      "  flywheel: \"spinning\"",
+      "  glow: bright",
+      "}"
+    ],
+    "description": "Invoke an Angel entity"
+  },
+  "Sequence": {
+    "prefix": "sequence",
+    "body": [
+      "sequence ${1:SequenceName} {",
+      "  duration: \"${2:3s}\"",
+      "",
+      "  frame ${3:1} {",
+      "    ${4:// actions}",
+      "  }",
+      "",
+      "  frame ${5:30} {",
+      "    ${6:// actions}",
+      "  }",
+      "}"
+    ],
+    "description": "Create a sequence"
+  },
+  "Frame Block": {
+    "prefix": "frame",
+    "body": [
+      "frame ${1:1} {",
+      "  ${2:// actions}",
+      "}"
+    ],
+    "description": "Create a frame block"
+  },
+  "Render Scene": {
+    "prefix": "render",
+    "body": [
+      "render scene ${1:SceneName} {",
+      "  background: \"cosmic void\"",
+      "  invoke: ${2:SequenceName}",
+      "  canvas: \"1920x1080\"",
+      "}"
+    ],
+    "description": "Render a scene"
+  },
+  "Appears At": {
+    "prefix": "appears",
+    "body": [
+      "${1:Entity} appears at ${2|(960\\, 540),center,left,right,(${3:x}\\, ${4:y})|}"
+    ],
+    "description": "Entity appears at position"
+  },
+  "Moves To": {
+    "prefix": "moves",
+    "body": [
+      "${1:Entity} moves ${2|to,from (${3:x1}\\, ${4:y1}) to|} (${5:x2}, ${6:y2})"
+    ],
+    "description": "Entity moves"
+  },
+  "Glows": {
+    "prefix": "glows",
+    "body": [
+      "${1:Entity} glows ${2|bright,normal|}"
+    ],
+    "description": "Entity glows"
+  },
+  "Fades": {
+    "prefix": "fades",
+    "body": [
+      "${1:Entity} fades ${2|in,out|}"
+    ],
+    "description": "Entity fades"
+  },
+  "Floats": {
+    "prefix": "floats",
+    "body": [
+      "${1:Entity} floats ${2|gently,|}"
+    ],
+    "description": "Entity floats"
+  },
+  "Emit Particles": {
+    "prefix": "emit",
+    "body": [
+      "emit particles: ${1:50}"
+    ],
+    "description": "Emit particles"
+  },
+  "Merges With": {
+    "prefix": "merges",
+    "body": [
+      "${1:Entity} merges with ${2:TargetEntity}"
+    ],
+    "description": "Entity merges with another"
+  },
+  "Complete Program": {
+    "prefix": "program",
+    "body": [
+      "# ${1:Program Name}",
+      "",
+      "invoke ${2:MyEntity} as ${3|Son,Angel,Island|} {",
+      "  color: \"${4:#FFFFFF}\"",
+      "}",
+      "",
+      "sequence ${5:MySequence} {",
+      "  duration: \"${6:3s}\"",
+      "",
+      "  frame 1 {",
+      "    ${2:MyEntity} appears at center",
+      "  }",
+      "",
+      "  frame 30 {",
+      "    ${2:MyEntity} glows bright",
+      "  }",
+      "}",
+      "",
+      "render scene ${7:MyScene} {",
+      "  background: \"cosmic void\"",
+      "  invoke: ${5:MySequence}",
+      "  canvas: \"1920x1080\"",
+      "}"
+    ],
+    "description": "Complete lang program template"
+  }
+}
