@@ -75,5 +75,5 @@ sequence SevenCircle {
 render scene SevenSonsIntroduction {
   background: "cosmic void"
   invoke: SevenCircle
-  canvas: 1920x1080
+  canvas: "1920x1080"
 }

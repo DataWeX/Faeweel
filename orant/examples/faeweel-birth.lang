@@ -53,5 +53,5 @@ sequence BirthOfAngel {
 render scene TheBirth {
   background: "cosmic void"
   invoke: BirthOfAngel
-  canvas: 1920x1080
+  canvas: "1920x1080"
 }

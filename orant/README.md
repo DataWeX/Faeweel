@@ -2,6 +2,8 @@
 
 **Orant** is a spiritual animation framework for creating the Faeweel angel mythology flipbook movie. It features **lang**, a simple domain-specific language that compiles to JavaScript for rendering ethereal animations.
 
+> **✨ Now with TypeScript!** Orant is fully rewritten in TypeScript for type safety, better IDE support, and professional development experience. See [TYPESCRIPT.md](TYPESCRIPT.md) for details.
+
 ## What is Orant?
 
 *Orant* (Latin: "one who prays") is both:

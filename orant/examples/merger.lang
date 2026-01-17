@@ -79,5 +79,5 @@ sequence TheConvergence {
 render scene TheMerger {
   background: "cosmic void"
   invoke: TheConvergence
-  canvas: 1920x1080
+  canvas: "1920x1080"
 }
