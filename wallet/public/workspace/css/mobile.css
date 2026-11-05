@@ -1,0 +1,52 @@
+@media (max-width: 720px), (pointer: coarse) {
+  #screen {
+    height: 100vh;
+    height: min(100dvh, var(--wm-visual-height, 100dvh));
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  #desktop {
+    min-width: 0;
+    min-height: 0;
+    max-width: 100%;
+    max-height: 100%;
+  }
+
+  #taskbar {
+    box-sizing: border-box;
+    min-height: calc(44px + env(safe-area-inset-bottom, 0px));
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    padding-inline: max(8px, env(safe-area-inset-left, 0px)) max(8px, env(safe-area-inset-right, 0px));
+    scroll-padding-inline: env(safe-area-inset-left, 0px) env(safe-area-inset-right, 0px);
+  }
+
+  .win {
+    box-sizing: border-box;
+    min-width: 0;
+    min-height: 0;
+    max-width: 100%;
+    max-height: 100%;
+  }
+
+  .win-titlebar {
+    min-height: 48px;
+    padding-inline: max(10px, env(safe-area-inset-left, 0px)) max(10px, env(safe-area-inset-right, 0px));
+  }
+
+  .win-controls {
+    flex: 0 0 auto;
+    gap: 4px;
+  }
+
+  .win-btn,
+  .task-btn {
+    box-sizing: border-box;
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .win-resize {
+    display: none;
+  }
+}
