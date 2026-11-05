@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<helixwm>
+  <window class="win">
+    <titlebar class="win-titlebar">
+      <title class="win-title"/>
+      <controls class="win-controls">
+        <button class="win-btn" action="min" title="minimize">_</button>
+        <button class="win-btn win-x" action="close" title="close">x</button>
+      </controls>
+    </titlebar>
+    <bar class="app-bar"/>
+    <body class="app-body"/>
+    <resize class="win-resize" action="resize"/>
+  </window>
+</helixwm>
