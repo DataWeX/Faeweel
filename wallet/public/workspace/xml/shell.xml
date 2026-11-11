@@ -1,0 +1,302 @@
+<stylesheet>
+  <rule selector="html[data-shell=&quot;plasma&quot;], html[data-shell=&quot;xfce&quot;]">
+    <property name="--shell-ink" value="#e9f1ff" />
+    <property name="--shell-muted" value="#a9b8ce" />
+    <property name="--shell-edge" value="rgba(214, 231, 255, 0.2)" />
+    <property name="--shell-shadow" value="0 18px 48px rgba(4, 12, 28, 0.34)" />
+    <property name="color-scheme" value="dark" />
+  </rule>
+  <rule selector="html[data-shell=&quot;plasma&quot;] #crt, html[data-shell=&quot;xfce&quot;] #crt">
+    <property name="width" value="100vw" />
+    <property name="height" value="100vh" />
+    <property name="height" value="100dvh" />
+    <property name="padding" value="0" />
+    <property name="overflow" value="hidden" />
+  </rule>
+  <rule selector="html[data-shell=&quot;plasma&quot;] .bezel, html[data-shell=&quot;xfce&quot;] .bezel">
+    <property name="width" value="100%" />
+    <property name="height" value="100%" />
+    <property name="padding" value="0" />
+    <property name="border" value="0" />
+    <property name="border-radius" value="0" />
+    <property name="background" value="transparent" />
+    <property name="box-shadow" value="none" />
+  </rule>
+  <rule selector="html[data-shell=&quot;plasma&quot;] #screen, html[data-shell=&quot;xfce&quot;] #screen">
+    <property name="width" value="100%" />
+    <property name="height" value="min(100%, var(--wm-visual-height, 100%))" />
+    <property name="border" value="0" />
+    <property name="border-radius" value="0" />
+    <property name="box-shadow" value="none" />
+  </rule>
+  <rule selector="html[data-shell=&quot;plasma&quot;] .bezel::before, html[data-shell=&quot;plasma&quot;] .bezel::after, html[data-shell=&quot;xfce&quot;] .bezel::before, html[data-shell=&quot;xfce&quot;] .bezel::after">
+    <property name="display" value="none" />
+  </rule>
+  <rule selector="html[data-shell=&quot;plasma&quot;] #de #wallpaper">
+    <property name="background" value="radial-gradient(ellipse at 76% 24%, rgba(74, 171, 255, 0.45), transparent 38%), radial-gradient(ellipse at 22% 82%, rgba(72, 93, 222, 0.55), transparent 46%), linear-gradient(135deg, #101d43 0%, #15386d 48%, #111d42 100%)" />
+  </rule>
+  <rule selector="html[data-shell=&quot;plasma&quot;] #desktop, html[data-shell=&quot;xfce&quot;] #desktop">
+    <property name="color" value="var(--shell-ink)" />
+  </rule>
+  <rule selector="html[data-shell=&quot;plasma&quot;] #deskIcons, html[data-shell=&quot;xfce&quot;] #deskIcons">
+    <property name="color" value="var(--shell-ink)" />
+  </rule>
+  <rule selector="html[data-shell=&quot;plasma&quot;] #deskIcons &gt; *, html[data-shell=&quot;xfce&quot;] #deskIcons &gt; *">
+    <property name="border-radius" value="8px" />
+  </rule>
+  <rule selector="html[data-shell=&quot;plasma&quot;] .win">
+    <property name="overflow" value="hidden" />
+    <property name="border" value="1px solid var(--shell-edge)" />
+    <property name="border-radius" value="12px" />
+    <property name="background" value="rgba(19, 29, 48, 0.96)" />
+    <property name="box-shadow" value="var(--shell-shadow)" />
+  </rule>
+  <rule selector="html[data-shell=&quot;plasma&quot;] .win-titlebar">
+    <property name="min-height" value="38px" />
+    <property name="border-bottom" value="1px solid rgba(214, 231, 255, 0.13)" />
+    <property name="background" value="rgba(35, 51, 77, 0.96)" />
+    <property name="color" value="var(--shell-ink)" />
+  </rule>
+  <rule selector="html[data-shell=&quot;plasma&quot;] .win-btn">
+    <property name="border-radius" value="50%" />
+  </rule>
+  <rule selector="html[data-shell=&quot;plasma&quot;] #panel">
+    <property name="right" value="auto" />
+    <property name="bottom" value="calc(12px + env(safe-area-inset-bottom, 0px))" />
+    <property name="left" value="50%" />
+    <property name="width" value="max-content" />
+    <property name="max-width" value="calc(100% - 24px - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px))" />
+    <property name="transform" value="translateX(-50%)" />
+    <property name="border" value="1px solid rgba(220, 237, 255, 0.22)" />
+    <property name="border-radius" value="18px" />
+    <property name="background" value="rgba(20, 39, 68, 0.82)" />
+    <property name="box-shadow" value="0 10px 36px rgba(4, 11, 26, 0.4)" />
+    <property name="color" value="var(--shell-ink)" />
+    <property name="-webkit-backdrop-filter" value="blur(18px) saturate(145%)" />
+    <property name="backdrop-filter" value="blur(18px) saturate(145%)" />
+  </rule>
+  <rule selector="html[data-shell=&quot;plasma&quot;] .task-btn">
+    <property name="border-radius" value="10px" />
+    <property name="color" value="var(--shell-ink)" />
+  </rule>
+  <rule selector="html[data-shell=&quot;plasma&quot;] #startMenu">
+    <property name="border" value="1px solid var(--shell-edge)" />
+    <property name="border-radius" value="14px" />
+    <property name="background" value="rgba(20, 34, 56, 0.97)" />
+    <property name="box-shadow" value="var(--shell-shadow)" />
+    <property name="color" value="var(--shell-ink)" />
+    <property name="-webkit-backdrop-filter" value="blur(18px)" />
+    <property name="backdrop-filter" value="blur(18px)" />
+  </rule>
+  <rule selector="html[data-shell=&quot;xfce&quot;] #de #wallpaper">
+    <property name="background" value="radial-gradient(ellipse at 74% 34%, rgba(73, 133, 137, 0.52), transparent 42%), linear-gradient(135deg, #253648 0%, #354b5a 54%, #253640 100%)" />
+  </rule>
+  <rule selector="html[data-shell=&quot;xfce&quot;] .win">
+    <property name="overflow" value="hidden" />
+    <property name="border" value="1px solid rgba(13, 24, 33, 0.72)" />
+    <property name="border-radius" value="5px" />
+    <property name="background" value="#1c2d36" />
+    <property name="box-shadow" value="0 9px 28px rgba(9, 17, 25, 0.38)" />
+  </rule>
+  <rule selector="html[data-shell=&quot;xfce&quot;] .win-titlebar">
+    <property name="min-height" value="32px" />
+    <property name="border-bottom" value="1px solid #151f29" />
+    <property name="background" value="linear-gradient(#465767, #344451)" />
+    <property name="color" value="#f4f7f8" />
+  </rule>
+  <rule selector="html[data-shell=&quot;xfce&quot;] .win-btn">
+    <property name="border-radius" value="3px" />
+  </rule>
+  <rule selector="html[data-shell=&quot;xfce&quot;] #panel">
+    <property name="right" value="calc(10px + env(safe-area-inset-right, 0px))" />
+    <property name="bottom" value="calc(10px + env(safe-area-inset-bottom, 0px))" />
+    <property name="left" value="calc(10px + env(safe-area-inset-left, 0px))" />
+    <property name="min-height" value="42px" />
+    <property name="border" value="1px solid rgba(12, 23, 31, 0.72)" />
+    <property name="border-radius" value="7px" />
+    <property name="background" value="rgba(35, 49, 61, 0.97)" />
+    <property name="box-shadow" value="0 5px 18px rgba(7, 13, 20, 0.34)" />
+    <property name="color" value="#eff5f5" />
+  </rule>
+  <rule selector="html[data-shell=&quot;xfce&quot;] .task-btn">
+    <property name="border-radius" value="4px" />
+    <property name="color" value="#eff5f5" />
+  </rule>
+  <rule selector="html[data-shell=&quot;xfce&quot;] #startMenu">
+    <property name="border" value="1px solid #17232d" />
+    <property name="border-radius" value="6px" />
+    <property name="background" value="#2d3e4c" />
+    <property name="box-shadow" value="0 8px 24px rgba(7, 13, 20, 0.4)" />
+    <property name="color" value="#eff5f5" />
+  </rule>
+  <rule selector="html[data-shell=&quot;plasma&quot;] .shell-picker, html[data-shell=&quot;xfce&quot;] .shell-picker">
+    <property name="display" value="grid" />
+    <property name="gap" value="6px" />
+    <property name="color" value="var(--shell-ink)" />
+  </rule>
+  <rule selector="html[data-shell=&quot;plasma&quot;] .shell-picker label, html[data-shell=&quot;xfce&quot;] .shell-picker label">
+    <property name="font-weight" value="600" />
+  </rule>
+  <rule selector="html[data-shell=&quot;plasma&quot;] .shell-picker [data-shell-profile], html[data-shell=&quot;xfce&quot;] .shell-picker [data-shell-profile]">
+    <property name="width" value="100%" />
+    <property name="min-height" value="44px" />
+    <property name="max-width" value="100%" />
+    <property name="padding" value="7px 34px 7px 10px" />
+    <property name="border" value="1px solid var(--shell-edge)" />
+    <property name="border-radius" value="8px" />
+    <property name="background-color" value="#17273d" />
+    <property name="color" value="var(--shell-ink)" />
+    <property name="font" value="inherit" />
+  </rule>
+  <rule selector="html[data-shell=&quot;xfce&quot;] .shell-picker [data-shell-profile]">
+    <property name="border-radius" value="4px" />
+    <property name="background-color" value="#263743" />
+  </rule>
+  <rule selector="html[data-shell=&quot;plasma&quot;] .shell-picker [data-shell-profile]:focus-visible, html[data-shell=&quot;xfce&quot;] .shell-picker [data-shell-profile]:focus-visible">
+    <property name="outline" value="2px solid #67baff" />
+    <property name="outline-offset" value="2px" />
+  </rule>
+  <rule selector="html[data-shell=&quot;plasma&quot;] .shell-picker :is(small, .help, .description), html[data-shell=&quot;xfce&quot;] .shell-picker :is(small, .help, .description), html[data-shell=&quot;plasma&quot;] .shell-picker &gt; p, html[data-shell=&quot;xfce&quot;] .shell-picker &gt; p">
+    <property name="margin" value="0" />
+    <property name="font-size" value="0.84em" />
+    <property name="color" value="var(--shell-muted)" />
+    <property name="line-height" value="1.45" />
+  </rule>
+  <rule selector="html[data-shell=&quot;plasma&quot;] .shell-picker [data-shell-status]:empty, html[data-shell=&quot;xfce&quot;] .shell-picker [data-shell-status]:empty">
+    <property name="display" value="none" />
+  </rule>
+  <media query="(max-width: 600px)">
+    <rule selector="html[data-shell=&quot;plasma&quot;] #panel">
+      <property name="bottom" value="calc(8px + env(safe-area-inset-bottom, 0px))" />
+      <property name="border-radius" value="14px" />
+    </rule>
+    <rule selector="html[data-shell=&quot;xfce&quot;] #panel">
+      <property name="right" value="calc(6px + env(safe-area-inset-right, 0px))" />
+      <property name="bottom" value="calc(6px + env(safe-area-inset-bottom, 0px))" />
+      <property name="left" value="calc(6px + env(safe-area-inset-left, 0px))" />
+    </rule>
+  </media>
+  <media query="(prefers-reduced-motion: reduce)">
+    <rule selector="html[data-shell=&quot;plasma&quot;] *, html[data-shell=&quot;xfce&quot;] *">
+      <property name="scroll-behavior" value="auto" />
+    </rule>
+  </media>
+  <rule selector="html[data-shell=&quot;plasma&quot;] #crt, html[data-shell=&quot;xfce&quot;] #crt">
+    <property name="--bg" value="#111e30" />
+    <property name="--bg-2" value="#1c2d43" />
+    <property name="--fg" value="#e5eefb" />
+    <property name="--muted" value="#afc1d7" />
+    <property name="--accent" value="#74bcff" />
+    <property name="--border" value="#425976" />
+    <property name="--bar" value="#20354d" />
+    <property name="--dir" value="#a2cfff" />
+    <property name="--glow" value="none" />
+    <property name="box-sizing" value="border-box" />
+    <property name="padding" value="env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) 0 env(safe-area-inset-left, 0px)" />
+    <property name="color" value="var(--fg)" />
+  </rule>
+  <rule selector="html[data-shell=&quot;xfce&quot;] #crt">
+    <property name="--bg" value="#192830" />
+    <property name="--bg-2" value="#263c46" />
+    <property name="--accent" value="#84cfca" />
+    <property name="--muted" value="#b1c4cb" />
+    <property name="--border" value="#4b6873" />
+    <property name="--bar" value="#2c454f" />
+  </rule>
+  <rule selector="html[data-shell=&quot;plasma&quot;] .win-title, html[data-shell=&quot;xfce&quot;] .win-title">
+    <property name="color" value="var(--fg)" />
+    <property name="text-shadow" value="none" />
+  </rule>
+  <rule selector="html[data-shell=&quot;plasma&quot;] #panel">
+    <property name="bottom" value="auto" />
+    <property name="margin-bottom" value="12px" />
+  </rule>
+  <rule selector="html[data-shell=&quot;xfce&quot;] #panel">
+    <property name="left" value="auto" />
+    <property name="right" value="auto" />
+    <property name="bottom" value="auto" />
+    <property name="margin" value="0 10px 10px" />
+  </rule>
+  <rule selector="html[data-shell=&quot;plasma&quot;] .desk-glyph, html[data-shell=&quot;xfce&quot;] .desk-glyph">
+    <property name="box-shadow" value="none" />
+    <property name="border-radius" value="10px" />
+  </rule>
+  <rule selector="html[data-shell=&quot;plasma&quot;] .bezel-brand, html[data-shell=&quot;xfce&quot;] .bezel-brand, html[data-shell=&quot;plasma&quot;] .bezel-led, html[data-shell=&quot;xfce&quot;] .bezel-led">
+    <property name="display" value="none" />
+  </rule>
+  <rule selector=".shell-picker">
+    <property name="display" value="grid" />
+    <property name="gap" value="8px" />
+  </rule>
+  <rule selector=".shell-picker select">
+    <property name="box-sizing" value="border-box" />
+    <property name="width" value="100%" />
+    <property name="min-height" value="44px" />
+    <property name="padding" value="8px 12px" />
+    <property name="border" value="1px solid var(--border)" />
+    <property name="border-radius" value="6px" />
+    <property name="background" value="var(--bg-2)" />
+    <property name="color" value="var(--fg)" />
+    <property name="font" value="inherit" />
+    <property name="font-size" value="16px" />
+  </rule>
+  <rule selector=".shell-picker p">
+    <property name="margin" value="4px 0" />
+  </rule>
+  <media query="(max-width: 720px), (max-width: 900px) and (max-height: 500px), (pointer: coarse)">
+    <rule selector="html[data-shell=&quot;plasma&quot;] #panel, html[data-shell=&quot;xfce&quot;] #panel">
+      <property name="left" value="auto" />
+      <property name="right" value="auto" />
+      <property name="bottom" value="auto" />
+      <property name="width" value="auto" />
+      <property name="max-width" value="100%" />
+      <property name="margin" value="0" />
+      <property name="transform" value="none" />
+      <property name="border-radius" value="0" />
+      <property name="padding-bottom" value="max(6px, env(safe-area-inset-bottom, 0px))" />
+    </rule>
+    <rule selector="html[data-shell=&quot;plasma&quot;] .win, html[data-shell=&quot;xfce&quot;] .win">
+      <property name="border-radius" value="0" />
+      <property name="min-width" value="0" />
+    </rule>
+  </media>
+  <rule selector="html[data-shell=&quot;plasma&quot;] #wallpaper::before, html[data-shell=&quot;plasma&quot;] #wallpaper::after, html[data-shell=&quot;xfce&quot;] #wallpaper::before, html[data-shell=&quot;xfce&quot;] #wallpaper::after">
+    <property name="display" value="none" />
+  </rule>
+  <rule selector="html[data-shell=&quot;plasma&quot;] #tray, html[data-shell=&quot;xfce&quot;] #tray">
+    <property name="color" value="var(--muted)" />
+  </rule>
+  <rule selector=".core-actions">
+    <property name="display" value="flex" />
+    <property name="flex-wrap" value="wrap" />
+    <property name="gap" value="8px" />
+  </rule>
+  <rule selector=".core-actions button">
+    <property name="min-height" value="44px" />
+    <property name="padding" value="10px 14px" />
+    <property name="border" value="1px solid var(--border)" />
+    <property name="border-radius" value="6px" />
+    <property name="background" value="var(--bg-2)" />
+    <property name="color" value="var(--fg)" />
+    <property name="font" value="inherit" />
+    <property name="cursor" value="pointer" />
+  </rule>
+  <rule selector=".core-actions button:disabled">
+    <property name="opacity" value=".5" />
+    <property name="cursor" value="default" />
+  </rule>
+  <rule selector=".core-process-table">
+    <property name="overflow-x" value="auto" />
+  </rule>
+  <rule selector=".core-process-table th">
+    <property name="text-align" value="left" />
+  </rule>
+  <rule selector=".core-process-table td, .core-process-table th">
+    <property name="padding" value="8px" />
+    <property name="overflow-wrap" value="anywhere" />
+  </rule>
+  <rule selector="[data-core-message]">
+    <property name="color" value="var(--accent)" />
+    <property name="min-height" value="1.7em" />
+  </rule>
+</stylesheet>

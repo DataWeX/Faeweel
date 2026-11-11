@@ -1,0 +1,355 @@
+html[data-shell="plasma"], html[data-shell="xfce"] {
+  --shell-ink: #e9f1ff;
+  --shell-muted: #a9b8ce;
+  --shell-edge: rgba(214, 231, 255, 0.2);
+  --shell-shadow: 0 18px 48px rgba(4, 12, 28, 0.34);
+  color-scheme: dark;
+}
+
+html[data-shell="plasma"] #crt, html[data-shell="xfce"] #crt {
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  padding: 0;
+  overflow: hidden;
+}
+
+html[data-shell="plasma"] .bezel, html[data-shell="xfce"] .bezel {
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+html[data-shell="plasma"] #screen, html[data-shell="xfce"] #screen {
+  width: 100%;
+  height: min(100%, var(--wm-visual-height, 100%));
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+html[data-shell="plasma"] .bezel::before, html[data-shell="plasma"] .bezel::after, html[data-shell="xfce"] .bezel::before, html[data-shell="xfce"] .bezel::after {
+  display: none;
+}
+
+html[data-shell="plasma"] #de #wallpaper {
+  background: radial-gradient(ellipse at 76% 24%, rgba(74, 171, 255, 0.45), transparent 38%), radial-gradient(ellipse at 22% 82%, rgba(72, 93, 222, 0.55), transparent 46%), linear-gradient(135deg, #101d43 0%, #15386d 48%, #111d42 100%);
+}
+
+html[data-shell="plasma"] #desktop, html[data-shell="xfce"] #desktop {
+  color: var(--shell-ink);
+}
+
+html[data-shell="plasma"] #deskIcons, html[data-shell="xfce"] #deskIcons {
+  color: var(--shell-ink);
+}
+
+html[data-shell="plasma"] #deskIcons > *, html[data-shell="xfce"] #deskIcons > * {
+  border-radius: 8px;
+}
+
+html[data-shell="plasma"] .win {
+  overflow: hidden;
+  border: 1px solid var(--shell-edge);
+  border-radius: 12px;
+  background: rgba(19, 29, 48, 0.96);
+  box-shadow: var(--shell-shadow);
+}
+
+html[data-shell="plasma"] .win-titlebar {
+  min-height: 38px;
+  border-bottom: 1px solid rgba(214, 231, 255, 0.13);
+  background: rgba(35, 51, 77, 0.96);
+  color: var(--shell-ink);
+}
+
+html[data-shell="plasma"] .win-btn {
+  border-radius: 50%;
+}
+
+html[data-shell="plasma"] #panel {
+  right: auto;
+  bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+  left: 50%;
+  width: max-content;
+  max-width: calc(100% - 24px - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px));
+  transform: translateX(-50%);
+  border: 1px solid rgba(220, 237, 255, 0.22);
+  border-radius: 18px;
+  background: rgba(20, 39, 68, 0.82);
+  box-shadow: 0 10px 36px rgba(4, 11, 26, 0.4);
+  color: var(--shell-ink);
+  -webkit-backdrop-filter: blur(18px) saturate(145%);
+  backdrop-filter: blur(18px) saturate(145%);
+}
+
+html[data-shell="plasma"] .task-btn {
+  border-radius: 10px;
+  color: var(--shell-ink);
+}
+
+html[data-shell="plasma"] #startMenu {
+  border: 1px solid var(--shell-edge);
+  border-radius: 14px;
+  background: rgba(20, 34, 56, 0.97);
+  box-shadow: var(--shell-shadow);
+  color: var(--shell-ink);
+  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
+}
+
+html[data-shell="xfce"] #de #wallpaper {
+  background: radial-gradient(ellipse at 74% 34%, rgba(73, 133, 137, 0.52), transparent 42%), linear-gradient(135deg, #253648 0%, #354b5a 54%, #253640 100%);
+}
+
+html[data-shell="xfce"] .win {
+  overflow: hidden;
+  border: 1px solid rgba(13, 24, 33, 0.72);
+  border-radius: 5px;
+  background: #1c2d36;
+  box-shadow: 0 9px 28px rgba(9, 17, 25, 0.38);
+}
+
+html[data-shell="xfce"] .win-titlebar {
+  min-height: 32px;
+  border-bottom: 1px solid #151f29;
+  background: linear-gradient(#465767, #344451);
+  color: #f4f7f8;
+}
+
+html[data-shell="xfce"] .win-btn {
+  border-radius: 3px;
+}
+
+html[data-shell="xfce"] #panel {
+  right: calc(10px + env(safe-area-inset-right, 0px));
+  bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+  left: calc(10px + env(safe-area-inset-left, 0px));
+  min-height: 42px;
+  border: 1px solid rgba(12, 23, 31, 0.72);
+  border-radius: 7px;
+  background: rgba(35, 49, 61, 0.97);
+  box-shadow: 0 5px 18px rgba(7, 13, 20, 0.34);
+  color: #eff5f5;
+}
+
+html[data-shell="xfce"] .task-btn {
+  border-radius: 4px;
+  color: #eff5f5;
+}
+
+html[data-shell="xfce"] #startMenu {
+  border: 1px solid #17232d;
+  border-radius: 6px;
+  background: #2d3e4c;
+  box-shadow: 0 8px 24px rgba(7, 13, 20, 0.4);
+  color: #eff5f5;
+}
+
+html[data-shell="plasma"] .shell-picker, html[data-shell="xfce"] .shell-picker {
+  display: grid;
+  gap: 6px;
+  color: var(--shell-ink);
+}
+
+html[data-shell="plasma"] .shell-picker label, html[data-shell="xfce"] .shell-picker label {
+  font-weight: 600;
+}
+
+html[data-shell="plasma"] .shell-picker [data-shell-profile], html[data-shell="xfce"] .shell-picker [data-shell-profile] {
+  width: 100%;
+  min-height: 44px;
+  max-width: 100%;
+  padding: 7px 34px 7px 10px;
+  border: 1px solid var(--shell-edge);
+  border-radius: 8px;
+  background-color: #17273d;
+  color: var(--shell-ink);
+  font: inherit;
+}
+
+html[data-shell="xfce"] .shell-picker [data-shell-profile] {
+  border-radius: 4px;
+  background-color: #263743;
+}
+
+html[data-shell="plasma"] .shell-picker [data-shell-profile]:focus-visible, html[data-shell="xfce"] .shell-picker [data-shell-profile]:focus-visible {
+  outline: 2px solid #67baff;
+  outline-offset: 2px;
+}
+
+html[data-shell="plasma"] .shell-picker :is(small, .help, .description), html[data-shell="xfce"] .shell-picker :is(small, .help, .description), html[data-shell="plasma"] .shell-picker > p, html[data-shell="xfce"] .shell-picker > p {
+  margin: 0;
+  font-size: 0.84em;
+  color: var(--shell-muted);
+  line-height: 1.45;
+}
+
+html[data-shell="plasma"] .shell-picker [data-shell-status]:empty, html[data-shell="xfce"] .shell-picker [data-shell-status]:empty {
+  display: none;
+}
+
+@media (max-width: 600px) {
+  html[data-shell="plasma"] #panel {
+    bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+    border-radius: 14px;
+  }
+
+  html[data-shell="xfce"] #panel {
+    right: calc(6px + env(safe-area-inset-right, 0px));
+    bottom: calc(6px + env(safe-area-inset-bottom, 0px));
+    left: calc(6px + env(safe-area-inset-left, 0px));
+  }
+
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-shell="plasma"] *, html[data-shell="xfce"] * {
+    scroll-behavior: auto;
+  }
+
+}
+
+html[data-shell="plasma"] #crt, html[data-shell="xfce"] #crt {
+  --bg: #111e30;
+  --bg-2: #1c2d43;
+  --fg: #e5eefb;
+  --muted: #afc1d7;
+  --accent: #74bcff;
+  --border: #425976;
+  --bar: #20354d;
+  --dir: #a2cfff;
+  --glow: none;
+  box-sizing: border-box;
+  padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) 0 env(safe-area-inset-left, 0px);
+  color: var(--fg);
+}
+
+html[data-shell="xfce"] #crt {
+  --bg: #192830;
+  --bg-2: #263c46;
+  --accent: #84cfca;
+  --muted: #b1c4cb;
+  --border: #4b6873;
+  --bar: #2c454f;
+}
+
+html[data-shell="plasma"] .win-title, html[data-shell="xfce"] .win-title {
+  color: var(--fg);
+  text-shadow: none;
+}
+
+html[data-shell="plasma"] #panel {
+  bottom: auto;
+  margin-bottom: 12px;
+}
+
+html[data-shell="xfce"] #panel {
+  left: auto;
+  right: auto;
+  bottom: auto;
+  margin: 0 10px 10px;
+}
+
+html[data-shell="plasma"] .desk-glyph, html[data-shell="xfce"] .desk-glyph {
+  box-shadow: none;
+  border-radius: 10px;
+}
+
+html[data-shell="plasma"] .bezel-brand, html[data-shell="xfce"] .bezel-brand, html[data-shell="plasma"] .bezel-led, html[data-shell="xfce"] .bezel-led {
+  display: none;
+}
+
+.shell-picker {
+  display: grid;
+  gap: 8px;
+}
+
+.shell-picker select {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 44px;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg-2);
+  color: var(--fg);
+  font: inherit;
+  font-size: 16px;
+}
+
+.shell-picker p {
+  margin: 4px 0;
+}
+
+@media (max-width: 720px), (max-width: 900px) and (max-height: 500px), (pointer: coarse) {
+  html[data-shell="plasma"] #panel, html[data-shell="xfce"] #panel {
+    left: auto;
+    right: auto;
+    bottom: auto;
+    width: auto;
+    max-width: 100%;
+    margin: 0;
+    transform: none;
+    border-radius: 0;
+    padding-bottom: max(6px, env(safe-area-inset-bottom, 0px));
+  }
+
+  html[data-shell="plasma"] .win, html[data-shell="xfce"] .win {
+    border-radius: 0;
+    min-width: 0;
+  }
+
+}
+
+html[data-shell="plasma"] #wallpaper::before, html[data-shell="plasma"] #wallpaper::after, html[data-shell="xfce"] #wallpaper::before, html[data-shell="xfce"] #wallpaper::after {
+  display: none;
+}
+
+html[data-shell="plasma"] #tray, html[data-shell="xfce"] #tray {
+  color: var(--muted);
+}
+
+.core-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.core-actions button {
+  min-height: 44px;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg-2);
+  color: var(--fg);
+  font: inherit;
+  cursor: pointer;
+}
+
+.core-actions button:disabled {
+  opacity: .5;
+  cursor: default;
+}
+
+.core-process-table {
+  overflow-x: auto;
+}
+
+.core-process-table th {
+  text-align: left;
+}
+
+.core-process-table td, .core-process-table th {
+  padding: 8px;
+  overflow-wrap: anywhere;
+}
+
+[data-core-message] {
+  color: var(--accent);
+  min-height: 1.7em;
+}
