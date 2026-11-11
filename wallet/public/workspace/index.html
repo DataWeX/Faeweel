@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>HelixOS — Browser workspace</title>
+  <meta name="theme-color" content="#160e0a">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/os.css">
+  <link rel="stylesheet" href="css/system.css">
+  <link rel="stylesheet" href="css/mobile.css">
+  <link rel="stylesheet" href="css/shell.css">
+  <link rel="stylesheet" href="css/core.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect fill='%230a0e12' width='64' height='64' rx='10'/><text x='32' y='44' text-anchor='middle' font-size='36' fill='%2338fca5' font-family='monospace'>H</text></svg>">
+</head>
+<body>
+  <div id="crt" data-theme="fire">
+    <div class="bezel">
+      <div class="bezel-brand">HELIX</div>
+      <div class="bezel-led" id="powerLed"></div>
+      <div id="screen">
+        <div class="glass"></div>
+        <div class="scanlines"></div>
+        <div class="vignette"></div>
+
+        <div id="storageNotice" role="alert" hidden></div>
+        <section id="welcome" aria-label="Welcome to HelixOS">
+          <div class="welcome-logo"><span class="helix-symbol">⟐</span> HELIX<span class="welcome-version">BROWSER EDITION / 01</span></div>
+          <h1>Your system.<br><span>Inside your browser.</span></h1>
+          <p class="welcome-lead">A desktop, a terminal, and a place for your files. Start a local workspace—no installation, no remote computer required.</p>
+          <div class="welcome-actions"><button id="enterDesktop" type="button" disabled>Open desktop →</button><button id="terminalLogin" type="button">Terminal login</button></div>
+          <p id="welcomeMessage" class="welcome-message" role="status">Starting your browser workspace…</p>
+          <div class="welcome-meta"><span><strong>LOCAL FIRST</strong>Files stay in this browser</span><span><strong>TOUCH READY</strong>Phone, tablet, or desktop</span><span><strong>EXPERIMENTAL</strong>Linux guest on demand</span></div>
+        </section>
+        <section id="tty" aria-label="TTY login" hidden>
+          <div class="tty-toolbar"><span>Helix local console</span><button id="backToWelcome" type="button">Back to welcome</button></div>
+          <div class="term-out" id="ttyOut"></div>
+          <form class="term-form" id="ttyForm" autocomplete="off">
+            <label class="term-prompt" id="ttyPrompt" for="ttyIn">helix login:</label>
+            <div class="input-wrap">
+              <input class="term-in" id="ttyIn" type="text" spellcheck="false" autocapitalize="off" autocorrect="off" autocomplete="off">
+              <span class="term-ghost" id="ttyGhost"></span>
+            </div>
+          </form>
+        </section>
+
+        <section id="de" hidden>
+          <div id="wallpaper"></div>
+          <div id="deskIcons"></div>
+          <div id="desktop"></div>
+          <div id="startMenu" hidden>
+            <div class="sm-head">HelixDE</div>
+            <button type="button" data-app="core">Core processes</button>
+            <button type="button" data-app="term">Terminal</button>
+            <button type="button" data-app="files">Files</button>
+            <button type="button" data-app="media">Media</button>
+            <button type="button" data-app="camera">Camera</button>
+            <button type="button" data-app="edit">Editor</button>
+            <button type="button" data-app="snake">Snake</button>
+            <button type="button" data-app="matrix">Matrix</button>
+            <button type="button" data-app="wine">Wine</button>
+            <button type="button" data-app="linux">Linux</button>
+            <div class="sm-sep"></div>
+            <button type="button" data-app="settings">Settings</button>
+            <button type="button" data-app="design">Design</button>
+            <button type="button" data-app="theme">Theme</button>
+            <button type="button" data-app="wallpaper">Wallpaper</button>
+            <button type="button" data-app="color">Color</button>
+            <button type="button" data-app="kernel">Kernel</button>
+            <button type="button" data-app="filesystem">Filesystem</button>
+            <button type="button" data-app="config">Config</button>
+            <button type="button" data-app="warnings">Warnings</button>
+            <button type="button" data-app="wm">HelixWM</button>
+            <div class="sm-sep"></div>
+            <button type="button" data-act="logout">Log out to TTY</button>
+          </div>
+          <footer id="panel">
+            <button type="button" id="startBtn">Helix</button>
+            <div id="taskbar"></div>
+            <div id="tray"><button id="systemButton" type="button" aria-label="System information">System</button>
+              <span id="cpuStat">0 windows</span>
+              <span id="memStat">local files</span>
+              <span id="userStat">guest</span>
+              <span id="clockStat">00:00:00</span>
+            </div>
+          </footer>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" hidden></div>
+  <div id="dropOverlay" hidden>
+    <div class="drop-card">
+      <div class="drop-title">DROP TO UPLOAD</div>
+      <div class="drop-sub">files land in the home directory</div>
+    </div>
+  </div>
+  <input id="filePicker" type="file" multiple hidden>
+
+  <script src="vendor/libv86.js"></script>
+  <script src="js/vfs.js"></script>
+  <script src="js/core-process.js"></script>
+  <script src="js/kernel.js"></script>
+  <script src="js/vmm.js"></script>
+  <script src="js/files.js"></script>
+  <script src="js/wine.js"></script>
+  <script src="js/commands.js"></script>
+  <script src="js/xmlwin.js"></script>
+  <script src="js/wm.js"></script>
+  <script src="js/terminal.js"></script>
+  <script src="js/desktop.js"></script>
+  <script src="js/apps.js"></script>
+  <script src="js/shell.js"></script>
+  <script src="js/system.js"></script>
+  <script src="js/core-monitor.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
