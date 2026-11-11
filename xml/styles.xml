@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <style name="Theme.Helix">
+    <item name="bg">#05080a</item>
+    <item name="fg">#7CFF7A</item>
+    <item name="accent">#9dff8a</item>
+    <item name="dim">#3fae43</item>
+    <item name="error">#ff6b6b</item>
+    <item name="font">"IBM Plex Mono", "Fira Code", ui-monospace, monospace</item>
+  </style>
+
+  <style name="Window">
+    <item name="background">#0a1210</item>
+    <item name="border">2px solid #2f6b34</item>
+    <item name="borderFocused">2px solid var(--accent)</item>
+    <item name="radius">0px</item>
+    <item name="shadow">0 8px 24px rgba(0,0,0,0.6), inset 0 0 0 1px rgba(124,255,122,0.08)</item>
+  </style>
+
+  <style name="Window.TitleBar">
+    <item name="height">30px</item>
+    <item name="background">linear-gradient(180deg,#16381a,#0e2412)</item>
+    <item name="backgroundFocused">linear-gradient(180deg,#1d4a22,#123018)</item>
+    <item name="color">var(--fg)</item>
+    <item name="borderBottom">1px solid #2f6b34</item>
+  </style>
+
+  <style name="Window.Body">
+    <item name="background">#050a08</item>
+    <item name="padding">8px</item>
+    <item name="color">var(--fg)</item>
+  </style>
+
+  <style name="Desktop.Icon">
+    <item name="background">rgba(0,0,0,0.25)</item>
+    <item name="border">1px solid rgba(124,255,122,0.15)</item>
+    <item name="color">var(--fg)</item>
+    <item name="radius">2px</item>
+  </style>
+
+  <style name="App.Button">
+    <item name="background">rgba(0,0,0,0.3)</item>
+    <item name="border">1px solid rgba(124,255,122,0.3)</item>
+    <item name="color">var(--fg)</item>
+  </style>
+</resources>

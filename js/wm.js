@@ -32,20 +32,24 @@
     win.appendChild(body);
     area.appendChild(win);
     focus(win);
-    win.addEventListener("mousedown", () => focus(win));
+    win.addEventListener("pointerdown", () => focus(win));
     close.addEventListener("click", () => { if (opts.onClose) opts.onClose(); win.remove(); });
     let drag = null;
-    title.addEventListener("mousedown", (e) => {
+    title.style.touchAction = "none";
+    title.addEventListener("pointerdown", (e) => {
       if (e.target === close) return;
       drag = { sx: e.clientX, sy: e.clientY, sl: win.offsetLeft, st: win.offsetTop };
+      try { title.setPointerCapture(e.pointerId); } catch (_) {}
       e.preventDefault();
     });
-    window.addEventListener("mousemove", (e) => {
+    title.addEventListener("pointermove", (e) => {
       if (!drag) return;
-      win.style.left = (drag.sl + e.clientX - drag.sx) + "px";
-      win.style.top = (drag.st + e.clientY - drag.sy) + "px";
+      win.style.left = Math.max(0, drag.sl + e.clientX - drag.sx) + "px";
+      win.style.top = Math.max(0, drag.st + e.clientY - drag.sy) + "px";
     });
-    window.addEventListener("mouseup", () => { drag = null; });
+    const endDrag = (e) => { drag = null; try { title.releasePointerCapture(e.pointerId); } catch (_) {} };
+    title.addEventListener("pointerup", endDrag);
+    title.addEventListener("pointercancel", () => { drag = null; });
     return { win, body, close, focus: () => focus(win) };
   }
   window.Helix = window.Helix || {};

@@ -55,3 +55,12 @@ html, body { margin: 0; height: 100%; background: #000; color: var(--fg); font-f
 .win-term-row input { flex: 1; background: #08110c; color: var(--fg); border: 1px solid rgba(124,255,122,0.25); font: inherit; padding: 4px 6px; outline: none; }
 .win-list { margin: 0; padding-left: 0; list-style: none; font-size: 13px; }
 .win-list li { padding: 2px 0; }
+
+/* DE touch/mobile tweaks */
+.win-title { touch-action: none; }
+.win-list li { padding: 3px 0; }
+.win-list li:hover { color: var(--accent); }
+@media (max-width: 700px) {
+  #de-icons { width: auto; right: 10px; grid-template-columns: repeat(3, 1fr); }
+  .win { min-width: 200px; }
+}

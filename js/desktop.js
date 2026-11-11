@@ -36,6 +36,14 @@
     setTimeout(() => input.focus(), 0);
     return w;
   }
+  function openViewer(path, name) {
+    let content = "";
+    try { content = Helix.vfs.read(path, "/"); } catch (e) { content = e.message; }
+    const pre = document.createElement("pre");
+    pre.className = "win-term-out";
+    pre.textContent = content;
+    Helix.wm.createWindow({ title: "View: " + name, body: pre, x: 340, y: 90, w: 520, h: 340 });
+  }
   function openFiles() {
     const wrap = document.createElement("div");
     const list = document.createElement("ul");
@@ -49,14 +57,16 @@
       try {
         const items = Helix.vfs.list(path, "/");
         if (path !== "/") {
-          const up = document.createElement("li"); up.textContent = ".."; up.style.cursor="pointer";
+          const up = document.createElement("li"); up.textContent = ".. (up)"; up.style.cursor="pointer";
           up.onclick = () => render(Helix.vfs.norm(path + "/..", "/")); list.appendChild(up);
         }
         items.forEach(name => {
-          const n = Helix.vfs.getNode(path === "/" ? "/" + name : path + "/" + name, "/");
+          const full = path === "/" ? "/" + name : path + "/" + name;
+          const n = Helix.vfs.getNode(full, "/");
           const li = document.createElement("li");
-          li.textContent = (n.node.type === "dir" ? "[D] " : "    ") + name;
-          if (n.node.type === "dir") { li.style.cursor = "pointer"; li.onclick = () => render(n.path); }
+          li.style.cursor = "pointer";
+          li.textContent = (n.node.type === "dir" ? "[DIR] " : "[FILE] ") + name + (n.node.type === "file" ? " (" + (n.node.size||0) + "b)" : "");
+          li.onclick = () => n.node.type === "dir" ? render(n.path) : openViewer(n.path, name);
           list.appendChild(li);
         });
       } catch (e) {
@@ -65,7 +75,28 @@
     }
     render(Helix.kernel.state.cwd || "/home/" + Helix.kernel.state.user);
     wrap.appendChild(list);
-    Helix.wm.createWindow({ title: "Files", body: wrap, x: 300, y: 80, w: 420, h: 320 });
+    Helix.wm.createWindow({ title: "Files", body: wrap, x: 300, y: 80, w: 460, h: 340 });
+  }
+  function openSettings() {
+    const wrap = document.createElement("div");
+    const label = document.createElement("div");
+    label.textContent = "Theme";
+    label.style.marginBottom = "8px";
+    wrap.appendChild(label);
+    ["phosphor","amber","ice","rose"].forEach(t => {
+      const b = document.createElement("button");
+      b.className = "win-btn";
+      b.style.width = "auto"; b.style.padding = "4px 10px"; b.style.margin = "0 6px 6px 0";
+      b.textContent = t;
+      b.onclick = () => { try { Helix.commands.cmds.theme([t]); } catch(e){} };
+      wrap.appendChild(b);
+    });
+    const info = document.createElement("div");
+    info.className = "dim";
+    info.style.marginTop = "10px";
+    info.textContent = "HelixOS MVP — Track A (JS simulation)";
+    wrap.appendChild(info);
+    Helix.wm.createWindow({ title: "Settings", body: wrap, x: 380, y: 120, w: 360, h: 200 });
   }
   function openAbout() {
     const pre = document.createElement("pre");
@@ -76,6 +107,7 @@
   const apps = [
     { id: "term", name: "Terminal", glyph: ">_", run: openTerminal },
     { id: "files", name: "Files", glyph: "[]", run: openFiles },
+    { id: "settings", name: "Settings", glyph: "*", run: openSettings },
     { id: "about", name: "About", glyph: "i", run: openAbout },
     { id: "logout", name: "Logout", glyph: "x", run: () => logoutSession() }
   ];
