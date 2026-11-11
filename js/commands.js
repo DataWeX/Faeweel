@@ -35,7 +35,7 @@
   };
   const cmds = {
     help() {
-      return "Commands: help, man, clear, echo, pwd, cd, ls, cat, cp, mv, mkdir, touch, rm, grep, head, tail, tree, wc, env, whoami, hostname, date, uname, neofetch, theme, startx, logout, resetfs, history | pipes and ; and > >> supported";
+      return "Commands: help, man, clear, echo, pwd, cd, ls, cat, cp, mv, mkdir, touch, rm, grep, head, tail, tree, wc, env, ps, whoami, hostname, date, uname, neofetch, theme, startx, logout, resetfs, history | pipes and ; and > >> supported";
     },
     man(a) { if (!a[0]) return "usage: man COMMAND"; return manPages[a[0]] || "No manual entry for " + a[0]; },
     clear() { Helix.terminal.clear(); return ""; },
@@ -125,6 +125,7 @@
     },
     whoami() { return Helix.kernel.state.user || "guest"; },
     hostname() { return Helix.kernel.state.host; },
+    ps() { return Helix.kernel.ps(); },
     date() { return new Date().toString(); },
     uname() { return "HelixOS helix 1.0.0-js wasm32 browser"; },
     history() { return Helix.kernel.state.history.map((h,i)=>String(i+1).padStart(4)+"  "+h).join("\n"); },

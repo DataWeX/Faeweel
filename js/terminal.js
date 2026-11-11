@@ -136,8 +136,10 @@
       "Loading kernel helix-1.0.0-js ...",
       "[    0.000001] HelixOS kernel (JavaScript simulation, wasm32/browser)",
       "[    0.003120] mounting virtual filesystem ... ok",
+      "[    0.003800] init[1]: starting ...",
       "[    0.004210] initializing tty1 ... ok",
-      "[    0.005002] starting getty on tty1",
+      "[    0.004600] getty[2]: spawning on tty1",
+      "[    0.005002] starting login service on tty1",
       ""
     ];
     for (const l of lines) {
@@ -145,6 +147,7 @@
       await new Promise(r => setTimeout(r, 120));
     }
     await new Promise(r => setTimeout(r, 250));
+    Helix.kernel.initProcs();
     showTerminal();
     setLoginMode(true);
   }
