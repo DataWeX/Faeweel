@@ -35,7 +35,7 @@
   };
   const cmds = {
     help() {
-      return "Commands: help, man, clear, echo, pwd, cd, ls, cat, cp, mv, mkdir, touch, rm, grep, head, tail, tree, wc, env, whoami, hostname, date, uname, neofetch, theme, startx, logout, resetfs, history";
+      return "Commands: help, man, clear, echo, pwd, cd, ls, cat, cp, mv, mkdir, touch, rm, grep, head, tail, tree, wc, env, whoami, hostname, date, uname, neofetch, theme, startx, logout, resetfs, history | pipes and ; and > >> supported";
     },
     man(a) { if (!a[0]) return "usage: man COMMAND"; return manPages[a[0]] || "No manual entry for " + a[0]; },
     clear() { Helix.terminal.clear(); return ""; },
@@ -65,8 +65,8 @@
         return t + (c.mode || "644") + " " + (c.owner || "root") + " " + String(c.size || 0).padStart(6) + " " + name + (c.type === "dir" ? "/" : "");
       }).join("\n");
     },
-    cat(a) {
-      if (!a[0]) throw new Error("cat: missing file");
+    cat(a, stdin) {
+      if (!a[0]) return stdin != null ? String(stdin) : "";
       return a.map(f => Helix.vfs.read(f, Helix.kernel.state.cwd)).join("\n");
     },
     cp(a) { if (a.length < 2) throw new Error("cp: missing operand"); Helix.vfs.copy(a[0], a[1], Helix.kernel.state.cwd); return ""; },
@@ -79,24 +79,29 @@
       if (!target) throw new Error("rm: missing operand");
       Helix.vfs.rm(target, Helix.kernel.state.cwd, r); return "";
     },
-    grep(a) {
-      if (a.length < 2) throw new Error("grep: usage: grep PATTERN FILE");
-      const pat = a[0]; const file = a[1];
-      const text = Helix.vfs.read(file, Helix.kernel.state.cwd);
+    grep(a, stdin) {
+      if (!a[0]) throw new Error("grep: usage: grep PATTERN [FILE]");
+      const pat = a[0];
+      let text;
+      if (a[1]) text = Helix.vfs.read(a[1], Helix.kernel.state.cwd);
+      else if (stdin != null) text = String(stdin);
+      else throw new Error("grep: missing file");
       const re = new RegExp(pat.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
       return text.split("\n").filter(l => re.test(l)).join("\n");
     },
-    head(a) {
+    head(a, stdin) {
       let n = 10, file;
       for (let i = 0; i < a.length; i++) { if (a[i] === "-n" && a[i+1]) { n = parseInt(a[++i],10)||10; } else if (!a[i].startsWith("-")) file = a[i]; }
-      if (!file) throw new Error("head: missing file");
-      return Helix.vfs.read(file, Helix.kernel.state.cwd).split("\n").slice(0,n).join("\n");
+      const text = file ? Helix.vfs.read(file, Helix.kernel.state.cwd) : (stdin != null ? String(stdin) : null);
+      if (text == null) throw new Error("head: missing file");
+      return text.split("\n").slice(0,n).join("\n");
     },
-    tail(a) {
+    tail(a, stdin) {
       let n = 10, file;
       for (let i = 0; i < a.length; i++) { if (a[i] === "-n" && a[i+1]) { n = parseInt(a[++i],10)||10; } else if (!a[i].startsWith("-")) file = a[i]; }
-      if (!file) throw new Error("tail: missing file");
-      const lines = Helix.vfs.read(file, Helix.kernel.state.cwd).split("\n");
+      const text = file ? Helix.vfs.read(file, Helix.kernel.state.cwd) : (stdin != null ? String(stdin) : null);
+      if (text == null) throw new Error("tail: missing file");
+      const lines = text.split("\n");
       return lines.slice(Math.max(0, lines.length-n)).join("\n");
     },
     tree(a) {
@@ -104,13 +109,15 @@
       const out = [a[0] || "."];
       return tree(target, "", out).join("\n");
     },
-    wc(a) {
-      if (!a[0]) throw new Error("wc: missing file");
-      const text = Helix.vfs.read(a[0], Helix.kernel.state.cwd);
+    wc(a, stdin) {
+      let text, label = "";
+      if (a[0]) { text = Helix.vfs.read(a[0], Helix.kernel.state.cwd); label = " " + a[0]; }
+      else if (stdin != null) text = String(stdin);
+      else throw new Error("wc: missing file");
       const lines = text === "" ? 0 : text.split("\n").length;
       const words = (text.trim().match(/\S+/g) || []).length;
       const bytes = text.length;
-      return lines + " " + words + " " + bytes + " " + a[0];
+      return lines + " " + words + " " + bytes + label;
     },
     env() {
       const k = Helix.kernel.state;
@@ -145,14 +152,14 @@
     logout() { Helix.kernel.logout(); Helix.terminal.setLoginMode(true); return "logout"; },
     resetfs() { Helix.vfs.reset(); return "filesystem reset to defaults (reload recommended)"; }
   };
-  async function run(line) {
+  async function run(line, stdin) {
     const raw = (line || "").trim();
     if (!raw) return "";
     const parts = argsOf(raw);
     const name = parts[0];
     const a = parts.slice(1);
     if (cmds[name]) {
-      const r = cmds[name](a);
+      const r = cmds[name](a, stdin);
       return r == null ? "" : String(r);
     }
     throw new Error("hsh: command not found: " + name);

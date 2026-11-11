@@ -1,11 +1,11 @@
 (function () {
-  function splitSemi(line) {
+  function splitBy(line, delim) {
     const out = []; let cur = ""; let q = null;
     for (let i=0;i<line.length;i++) {
       const c = line[i];
       if (q) { cur += c; if (c === q) q = null; continue; }
       if (c === '"' || c === "'") { q = c; cur += c; continue; }
-      if (c === ';') { if (cur.trim()) out.push(cur.trim()); cur = ""; continue; }
+      if (c === delim) { if (cur.trim()) out.push(cur.trim()); cur = ""; continue; }
       cur += c;
     }
     if (cur.trim()) out.push(cur.trim());
@@ -19,13 +19,22 @@
     else if (m1) { cmd = m1[1].trim(); target = m1[2]; append = false; }
     return { cmd, target, append };
   }
+  async function runPipeline(cmdLine) {
+    const stages = splitBy(cmdLine, "|");
+    let input = "";
+    for (const stage of stages) {
+      input = await Helix.commands.run(stage, input);
+      if (input == null) input = "";
+    }
+    return String(input);
+  }
   async function exec(line) {
-    const parts = splitSemi(line);
+    const parts = splitBy(line || "", ";");
     let last = "";
     for (const seg of parts) {
       const { cmd, target, append } = parseRedirect(seg);
       if (!cmd) continue;
-      const out = await Helix.commands.run(cmd);
+      const out = await runPipeline(cmd);
       if (target) {
         const prev = append && Helix.vfs.exists(target, Helix.kernel.state.cwd) ? Helix.vfs.read(target, Helix.kernel.state.cwd) : "";
         const data = (append && prev && !prev.endsWith("\n") && out ? prev + "\n" : prev) + (out || "");
@@ -38,5 +47,5 @@
     return last;
   }
   window.Helix = window.Helix || {};
-  Helix.shell = { exec, splitSemi, parseRedirect };
+  Helix.shell = { exec, splitBy, parseRedirect, runPipeline };
 })();
