@@ -1,6 +1,7 @@
 (function () {
   let started = false;
   let clockTimer = null;
+  let hshWin = null;
   function setClock() {
     const el = document.getElementById("de-clock");
     if (el) el.textContent = new Date().toLocaleString();
@@ -19,7 +20,7 @@
     row.appendChild(prompt); row.appendChild(input);
     wrap.appendChild(out); wrap.appendChild(row);
     function print(t) { out.textContent += (t == null ? "" : String(t)) + "\n"; out.scrollTop = out.scrollHeight; }
-    print("HelixDE terminal (hsh) - type 'help'");
+    print("tty terminal (separate session window)");
     async function runLine() {
       const v = input.value; input.value = "";
       print(Helix.kernel.prompt() + v);
@@ -33,6 +34,90 @@
     }
     input.addEventListener("keydown", (e) => { if (e.key === "Enter") runLine(); });
     const w = Helix.wm.createWindow({ title: "Terminal", body: wrap, x: 240 + Math.random()*40, y: 50 + Math.random()*30, w: 560, h: 360 });
+    setTimeout(() => input.focus(), 0);
+    return w;
+  }
+  function openHsh() {
+    if (hshWin && hshWin.win && hshWin.win.isConnected) {
+      hshWin.show();
+      const inp = hshWin.body.querySelector("input");
+      if (inp) inp.focus();
+      return hshWin;
+    }
+    const core = Helix.kernel.getCoreShell ? Helix.kernel.getCoreShell() : Helix.kernel.getProcByName("hsh");
+    const pid = core ? core.pid : "?";
+    const wrap = document.createElement("div");
+    const meta = document.createElement("div");
+    meta.className = "dim";
+    meta.style.marginBottom = "6px";
+    meta.textContent = "core shell attached: hsh pid " + pid + " on tty1 (init→getty→login→hsh)";
+    const out = document.createElement("pre");
+    out.className = "win-term-out";
+    const row = document.createElement("div");
+    row.className = "win-term-row";
+    const prompt = document.createElement("span");
+    prompt.textContent = Helix.kernel.prompt();
+    prompt.style.color = "var(--accent)";
+    const input = document.createElement("input");
+    input.type = "text"; input.spellcheck = false; input.autocomplete = "off";
+    row.appendChild(prompt); row.appendChild(input);
+    wrap.appendChild(meta); wrap.appendChild(out); wrap.appendChild(row);
+    function print(t) { out.textContent += (t == null ? "" : String(t)) + "\n"; out.scrollTop = out.scrollHeight; }
+    print("hsh GUI attached to core shell process (pid " + pid + ").");
+    print("Type 'help'. Close hides this window; core hsh stays running.");
+    async function runLine() {
+      const v = input.value; input.value = "";
+      print(Helix.kernel.prompt() + v);
+      if (!v.trim()) { prompt.textContent = Helix.kernel.prompt(); return; }
+      Helix.kernel.state.history.push(v.trim());
+      try {
+        if (v.trim() === "clear") { out.textContent = ""; }
+        else { const r = await Helix.shell.exec(v); if (r) print(r); }
+      } catch (e) { print(e.message || String(e)); }
+      prompt.textContent = Helix.kernel.prompt();
+    }
+    input.addEventListener("keydown", (e) => { if (e.key === "Enter") runLine(); });
+    hshWin = Helix.wm.createWindow({
+      title: "hsh (pid " + pid + ")",
+      body: wrap,
+      x: 240,
+      y: 50,
+      w: 580,
+      h: 360,
+      hideOnClose: true,
+      onShow: () => setTimeout(() => input.focus(), 0)
+    });
+    setTimeout(() => input.focus(), 0);
+    return hshWin;
+  }
+  function openTerminal() {
+    const wrap = document.createElement("div");
+    const out = document.createElement("pre");
+    out.className = "win-term-out";
+    const row = document.createElement("div");
+    row.className = "win-term-row";
+    const prompt = document.createElement("span");
+    prompt.textContent = Helix.kernel.prompt();
+    prompt.style.color = "var(--accent)";
+    const input = document.createElement("input");
+    input.type = "text"; input.spellcheck = false; input.autocomplete = "off";
+    row.appendChild(prompt); row.appendChild(input);
+    wrap.appendChild(out); wrap.appendChild(row);
+    function print(t) { out.textContent += (t == null ? "" : String(t)) + "\n"; out.scrollTop = out.scrollHeight; }
+    print("tty terminal (separate window, shared kernel/shell state)");
+    async function runLine() {
+      const v = input.value; input.value = "";
+      print(Helix.kernel.prompt() + v);
+      if (!v.trim()) { prompt.textContent = Helix.kernel.prompt(); return; }
+      Helix.kernel.state.history.push(v.trim());
+      try {
+        if (v.trim() === "clear") { out.textContent = ""; }
+        else { const r = await Helix.shell.exec(v); if (r) print(r); }
+      } catch (e) { print(e.message || String(e)); }
+      prompt.textContent = Helix.kernel.prompt();
+    }
+    input.addEventListener("keydown", (e) => { if (e.key === "Enter") runLine(); });
+    const w = Helix.wm.createWindow({ title: "Terminal", body: wrap, x: 320 + Math.random()*40, y: 80 + Math.random()*30, w: 560, h: 340 });
     setTimeout(() => input.focus(), 0);
     return w;
   }
@@ -153,6 +238,7 @@
     Helix.wm.createWindow({ title: "About", body: pre, x: 360, y: 100, w: 420, h: 240 });
   }
   const apps = [
+    { id: "hsh", name: "hsh", glyph: "$_", run: openHsh },
     { id: "term", name: "Terminal", glyph: ">_", run: openTerminal },
     { id: "files", name: "Files", glyph: "[]", run: openFiles },
     { id: "settings", name: "Settings", glyph: "*", run: openSettings },
@@ -183,13 +269,14 @@
     setClock();
     clockTimer = setInterval(setClock, 1000);
     started = true;
-    openTerminal();
-    return "HelixDE started on :0 (helixwm). Use Logout icon to end session.";
+    openHsh();
+    return "HelixDE started on :0 (helixwm). hsh GUI attached to core shell. Close hides it; Logout ends session.";
   }
   function stop(returnToTty) {
     if (!started) return;
     ["helixde","helixwm"].forEach(n => { const p = Helix.kernel.getProcByName(n); if (p) Helix.kernel.kill(p.pid); });
     document.getElementById("de-windows").innerHTML = "";
+    hshWin = null;
     document.getElementById("de").classList.add("hidden");
     if (clockTimer) clearInterval(clockTimer);
     started = false;

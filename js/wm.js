@@ -22,7 +22,7 @@
     const close = document.createElement("button");
     close.className = "win-btn";
     close.textContent = "×";
-    close.title = "Close";
+    close.title = opts.hideOnClose ? "Hide" : "Close";
     title.appendChild(t);
     title.appendChild(close);
     const body = document.createElement("div");
@@ -33,7 +33,13 @@
     area.appendChild(win);
     focus(win);
     win.addEventListener("pointerdown", () => focus(win));
-    close.addEventListener("click", () => { if (opts.onClose) opts.onClose(); win.remove(); });
+    function show() { win.style.display = ""; focus(win); if (opts.onShow) opts.onShow(); }
+    function hide() { win.style.display = "none"; if (opts.onHide) opts.onHide(); }
+    close.addEventListener("click", () => {
+      if (opts.hideOnClose) { hide(); return; }
+      if (opts.onClose) opts.onClose();
+      win.remove();
+    });
     let drag = null;
     title.style.touchAction = "none";
     title.addEventListener("pointerdown", (e) => {
@@ -50,7 +56,7 @@
     const endDrag = (e) => { drag = null; try { title.releasePointerCapture(e.pointerId); } catch (_) {} };
     title.addEventListener("pointerup", endDrag);
     title.addEventListener("pointercancel", () => { drag = null; });
-    return { win, body, close, focus: () => focus(win) };
+    return { win, body, close, focus: () => focus(win), show, hide, setTitle: (s) => { t.textContent = s; } };
   }
   window.Helix = window.Helix || {};
   Helix.wm = { createWindow, focus };

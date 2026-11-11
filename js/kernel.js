@@ -80,7 +80,8 @@
     const w = rows[0].map((_,i)=>Math.max(...rows.map(r=>r[i].length)));
     return rows.map(r=>r.map((c,i)=>c.padEnd(w[i])).join("  ")).join("\n");
   }
+  function getCoreShell() { return getProcByName("hsh"); }
   window.Helix = window.Helix || {};
   loadSession();
-  Helix.kernel = { state, checkAuth, login, logout, prompt, loadSession, addProc, kill, ps, initProcs, getProcByName };
+  Helix.kernel = { state, checkAuth, login, logout, prompt, loadSession, addProc, kill, ps, initProcs, getProcByName, getCoreShell };
 })();
