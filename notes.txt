@@ -1,3 +1,3 @@
-HelixOS repurposed ideas are saved in ./notes.md
-- Edit notes.md to set priorities/answer open questions (wallet, media manager, Wine shim, scope).
-- Reply "proceed" (and include priorities) when ready to build in /workspace/app.
+HelixOS roadmap (planning): see ./notes.md
+- Decide: Track A (JS sim) vs B (real Linux VM, x64 goal) vs hybrid; answer open questions in §1.
+- Reply with decisions/priorities and "proceed" to start Phase 0 spike/build.

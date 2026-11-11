@@ -1,53 +1,59 @@
-# HelixOS — Repurposed Ideas & Backlog
+# HelixOS — Roadmap (concept & plan before build)
 
-Saved/repurposed from chat context (previous session artifacts are **not** in this workspace; `/workspace/app` currently has only git + notes). Use this as the working spec to rebuild/refine here.
+**Status:** Planning only — no implementation started in this workspace (`/workspace/app` has git + notes only).
 
-## 1) Product vision
-- **HelixOS**: a browser-based, Linux-like shell/desktop experience (static HTML/CSS/JS, no backend required).
-- **Honest identity**: not real Linux — runs as a JavaScript “kernel” in the browser (e.g. `wasm32`/`helix 1.0.0-js` style in UI). Features like Wine are **compatibility shims**, not real Win32/ELF execution.
+## 0) Concept
+Build a browser-based “HelixOS” experience. Two architectural directions exist; **decision required before build**:
 
-## 2) Boot & session flow (repurposed)
-- Boot: BIOS-style checks (memory/storage) → kernel/dmesg-style log (timestamps, virtual hardware) → handoff to `tty1`.
-- Login/getty: `login:` prompt on `tty1` (e.g. `guest`/`root`, simple password/auth model), shell only after authentication.
-- Console-first UX: text shell on TTY; graphical environment started explicitly via `startx` (e.g. HelixDE + helixwm on `:0`).
-- Desktop model: terminal becomes an app/window inside DE; `logout` returns to console. GUI apps require active display/DE where applicable.
+| Track | Description | Pros | Cons / constraints |
+|---|---|---|---|
+| **A. JS-simulated OS** | Custom JS “kernel”, VFS in `localStorage`, fake shell/commands/apps, CRT UI, optional `startx` DE. | Lightweight, full UI/UX control, easy persistence/themes, works offline as static files. | Not a real Linux kernel/shell; binaries/Wine are shims only. |
+| **B. Real Linux VM in browser** | Run real Linux userspace (and kernel image, depending on tech) via x86 emulator/virtualization in WASM; real shell (`ash`/`bash`) and real ELF tools. | Authentic shell/binaries, closer to “real x64 Linux” behavior. | Large downloads, slower, limited devices/networking, complex integration; **x86_64 guest support varies by engine**. |
 
-## 3) Virtual system
-- **VFS** persisted in `localStorage` with Unix-like layout (`/bin`, `/home`, `/etc`, `/usr`, `/tmp`, `/var`, `/root`, per-user dirs).
-- Seeded content: README, `/etc/motd`, fortunes, sample docs/todo/poem, dotfiles; `resetfs`/reseed path for upgrades.
-- Multi-user basics: home dirs, ownership/mode metadata as feasible.
+**User signal:** wants a “real shell in browser for x64 Linux” → Track B is a primary candidate, but **true x86_64** in-browser is constrained (32-bit guests are easier/more common; some stacks virtualize x86 userland differently). Wine running *real* Windows binaries in-browser remains impractical without heavy full-machine emulation + compatible userspace.
 
-## 4) Shell & commands
-- POSIX-like command set (file ops, text processing, system/process/net-ish fakes, utilities) with help/man, tab completion, history, basic pipes/redirects, ANSI color.
-- Shortcuts: Enter, history nav, Tab, Ctrl+C/L/U/A/E (and others as needed).
-- Utilities/apps ideas: `neofetch` (report JS kernel truthfully), `edit/nano`-like, `bc`/calc, `python`-expr eval (toy), themes, status/menubar info (host/user/time/load/cpu/mem).
+### Candidate engines (Track B) — to evaluate
+- **v86** (OSS): x86 PC emulator in WASM; boots real Linux images — strong for authentic kernel+shell; 32-bit guests common, x64 support/fit to confirm.
+- **JSLinux**: boots real Linux in-browser (Bellard) — quick reference/demo path; licensing/embedding constraints to check.
+- **WebVM / CheerpX**: x86-to-WASM virtualization for Linux/x86 binaries/userspace in browser — evaluate x86_64 capability, networking, persistence, and embedding.
 
-## 5) Apps & windows (TTY overlays / DE windows)
-- Core: terminal, text editor, file browser/manager.
-- File manager: browse VFS, open/edit, upload/drag-drop into VFS, download/save to device; handle binary vs text safely.
-- Fun/system: `snake` (+ tetris/hangman optional), `matrix`, `fortune`, `cowsay`, clock, settings/theme.
-- **Media manager (requested, spec TBD)** — candidate repurpose:
-  - Library for images/audio/video stored in VFS (and/or imported).
-  - Import/upload, preview/play, basic metadata, folders/tags, open/download to device.
-  - Run as TTY overlay or DE app window consistent with chosen UX.
+## 1) Decisions needed (gate for Phase 1)
+- [ ] **Primary track:** A (sim), B (real VM), or **hybrid** (HelixOS UI shell + embedded VM terminal for “real” mode).
+- [ ] **CPU/guest target:** must be **x86_64** Linux or acceptable to start with x86 32-bit (e.g. i386 Alpine) as MVP?
+- [ ] **Distro/image & shell:** e.g. Alpine/Buildroot/Debian-minimal; `ash`/`bash`; required packages/tools.
+- [ ] **Integration:** standalone VM page vs embedded in HelixOS CRT/DE UI (tty window, boot handoff, `startx`).
+- [ ] **Persistence:** ephemeral vs saved disk/state in browser storage (and size limits).
+- [ ] **Networking/files:** need outbound net, file import/export, shared folder with host/VFS?
+- [ ] **Scope/name:** product name (HelixOS/NEXUS/etc.) and MVP definition.
+- [ ] **Earlier asks (defer or include?):** “Helix OS and then a wallet” — include wallet? (UI mock/local data/other, explicit scope). Media manager (types/features). Wine-style shim (only meaningful as UI mapping in Track A; in Track B depends on VM userspace, likely out of MVP).
 
-## 6) Wine-style compatibility layer (shim, not real Wine)
-- `wine <program>` command + basic prefix layout in VFS (e.g. `~/.wine/drive_c/...`).
-- Map common names to Helix apps (e.g. `notepad.exe`, `explorer.exe`, `cmd.exe`) and provide `winecfg`.
-- Refuse real PE/Win32 binaries with clear, honest errors; file manager/open handlers should detect and explain.
-- Desktop launcher/menu entry when DE is running; mention in seeded docs/motd.
+## 2) Roadmap phases
 
-## 7) Visual design
-- Retro-futuristic CRT terminal aesthetic (scanlines, vignette, phosphor glow/flicker), dark theme with accent palettes (phosphor/amber/ice/rose/ultraviolet).
-- Monospace fonts (e.g. JetBrains Mono/Fira/IBM Plex Mono/VT323). Responsive full-viewport layout.
+### Phase 0 — Planning & spike (current)
+- Confirm decisions in §1.
+- Run a small **technical spike**: pick 1 engine, boot a minimal image, verify real shell works in-browser, document x64 feasibility/perf/size.
+- Define repo/file structure and local preview/run method for this environment.
 
-## 8) Open questions / to confirm before build
-- [ ] Final name/scope for this rebuild (HelixOS/NEXUS/etc.) and MVP feature set.
-- [ ] “Helix OS and then a wallet” mentioned earlier — include a **wallet** app/module? what kind (UI mock, VFS-stored data, crypto? scope)?
-- [ ] Media manager: supported types, features, and UI (TTY vs window).
-- [ ] Wine shim: exact command behavior, mappings, prefix paths, PE detection/error text.
-- [ ] Preferred file/module structure and run/preview method in this environment.
-- [ ] Start implementation now? if so, prioritize: (a) boot/login/shell, (b) startx/DE+wm, (c) file manager, (d) media manager, (e) wine shim.
+### Phase 1 — MVP
+- **If Track A:** static app scaffold → boot → `tty1` login/getty → basic shell + VFS (`localStorage`) + core commands/themes.
+- **If Track B:** embed chosen VM, boot to login/shell, basic UX (terminal fit, keyboard, copy/paste) + minimal persistence/file exchange.
+- **If hybrid:** Track A shell/UI frame with a “real Linux” terminal app/session backed by VM.
 
----
-*Edit this file to set priorities and answer open questions, then ask to proceed.*
+### Phase 2 — Desktop & integration
+- `startx` / window manager & DE (HelixDE-style) or integrate VM display/serial console into windows.
+- Session flow polish: logout/return to TTY, status bar, theming/CRT visuals.
+
+### Phase 3 — Apps & features (prioritized per decisions)
+- File manager (VFS ↔ device upload/download; and/or VM filesystem bridge if Track B).
+- Media manager (types/UI TBD).
+- Wallet module (only if explicitly scoped).
+- Compatibility shims/mappings (e.g. Wine-style UI/name mapping) — **clearly labeled non-real** unless running inside capable VM userspace.
+
+### Phase 4 — Hardening & docs
+- Performance/asset loading, error states, reset/reseed flows, README/usage notes, honest capability reporting (`neofetch`/about).
+
+## 3) Repurposed feature backlog (reference)
+Details captured earlier (carry forward as applicable to chosen track): CRT retro aesthetic & palettes, command history/tab completion/pipes/ANSI/shortcuts, neofetch, editor/calc/games (`snake`, `matrix`, etc.), seeded files/motd/fortunes, multi-user basics, file manager drag-drop & save-to-device, Wine prefix/mappings/`winecfg` & PE refusal messaging.
+
+## 4) Immediate next step
+**Edit this file to answer §1 (especially Track A/B/hybrid and x86_64 requirement), set MVP priorities, then reply “proceed with roadmap decisions…”** — implementation will start only after decisions are recorded.
