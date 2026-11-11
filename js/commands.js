@@ -28,7 +28,11 @@
     head: "head [-n N] FILE - show first lines",
     tail: "tail [-n N] FILE - show last lines",
     tree: "tree [path] - display directory tree",
-    ps: "ps - list processes (init/getty/hsh, DE when running)",
+    ps: "ps - list processes (init/getty/login/hsh, DE when running)",
+    stat: "stat FILE - show file metadata",
+    find: "find [path] [name] - list paths (optional name substring filter)",
+    id: "id - print user identity",
+    passwd: "passwd - change current user password (stored in /etc/passwd)",
     theme: "theme [name] - set theme (phosphor|amber|ice|rose)",
     reloadstyle: "reloadstyle - reload window/app styles from xml/styles.xml",
     neofetch: "neofetch - show system info",
@@ -37,7 +41,7 @@
   };
   const cmds = {
     help() {
-      return "Commands: help, man, clear, echo, pwd, cd, ls, cat, cp, mv, mkdir, touch, rm, grep, head, tail, tree, wc, env, ps, whoami, hostname, date, uname, neofetch, theme, reloadstyle, startx, logout, resetfs, history | pipes and ; and > >> supported";
+      return "Commands: help, man, clear, echo, pwd, cd, ls, cat, cp, mv, mkdir, touch, rm, grep, head, tail, tree, wc, stat, find, env, ps, id, whoami, hostname, date, uname, neofetch, theme, reloadstyle, passwd, startx, logout, resetfs, history | pipes and ; and > >> supported";
     },
     man(a) { if (!a[0]) return "usage: man COMMAND"; return manPages[a[0]] || "No manual entry for " + a[0]; },
     clear() { Helix.terminal.clear(); return ""; },
@@ -124,6 +128,33 @@
     env() {
       const k = Helix.kernel.state;
       return ["USER="+(k.user||"guest"), "HOME="+(k.user==="root"?"/root":"/home/"+(k.user||"guest")), "PWD="+k.cwd, "HOSTNAME="+k.host, "SHELL=/bin/hsh", "TERM=helix-tty"].join("\n");
+    },
+    stat(a) { if(!a[0]) throw new Error("stat: missing file"); const s=Helix.vfs.stat(a[0], Helix.kernel.state.cwd); return "path: "+s.path+"\ntype: "+s.type+"\nmode: "+s.mode+"\nowner: "+s.owner+"\nsize: "+s.size+"\nmtime: "+s.mtime; },
+    find(a) {
+      const base = a[0] && !a[0].startsWith("-") ? a[0] : ".";
+      const pat = (a[1] && !a[1].startsWith("-")) ? a[1] : (a[0] && a[0].startsWith("-") ? "" : "");
+      const root = Helix.vfs.norm(base, Helix.kernel.state.cwd);
+      const out = [];
+      function walk(p) {
+        const n = Helix.vfs.getNode(p,"/");
+        if (!n) return;
+        if (!pat || p.includes(pat)) out.push(p);
+        if (n.node.type === "dir") Helix.vfs.list(p,"/").forEach(name => walk(p==="/" ? "/"+name : p+"/"+name));
+      }
+      walk(root);
+      return out.join("\n");
+    },
+    id() { const u=Helix.kernel.state.user||"guest"; return "uid="+(u==="root"?0:1000)+"("+u+") gid="+(u==="root"?0:1000)+"("+u+")"; },
+    passwd(a) {
+      const u = Helix.kernel.state.user || "guest";
+      const next = a[0];
+      if (!next) throw new Error("passwd: usage: passwd NEWPASSWORD");
+      let txt = "";
+      try { txt = Helix.vfs.read("/etc/passwd","/"); } catch(e){ txt = "root:root\nguest:guest\n"; }
+      const lines = txt.split("\n").filter(Boolean).map(l => { const [name,p]=l.split(":"); return name===u ? (name+":"+next) : l; });
+      if (!lines.some(l=>l.startsWith(u+":"))) lines.push(u+":"+next);
+      Helix.vfs.write("/etc/passwd", lines.join("\n")+"\n", "/");
+      return "password updated for " + u;
     },
     whoami() { return Helix.kernel.state.user || "guest"; },
     hostname() { return Helix.kernel.state.host; },

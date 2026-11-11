@@ -70,12 +70,12 @@
     return state.user + "@" + state.host + ":" + p + "$ ";
   }
   function ps() {
-    const rows = [["PID","TTY","USER","STAT","CMD"]];
-    const core = new Set(["init","getty"]);
+    const rows = [["PID","PPID","TTY","USER","STAT","CMD"]];
+    const core = new Set(["init","getty","hsh"]);
     Object.values(state.processes).forEach(p => {
       let st = p.state==="running" ? "R" : "S";
       if (core.has(p.name)) st += " [core]";
-      rows.push([String(p.pid), p.tty||"?", p.user, st, p.cmd]);
+      rows.push([String(p.pid), String(p.ppid||0), p.tty||"?", p.user, st, p.cmd]);
     });
     const w = rows[0].map((_,i)=>Math.max(...rows.map(r=>r[i].length)));
     return rows.map(r=>r.map((c,i)=>c.padEnd(w[i])).join("  ")).join("\n");

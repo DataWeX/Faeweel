@@ -139,10 +139,13 @@
       b.onclick = () => { try { Helix.commands.cmds.theme([t]); } catch(e){} };
       wrap.appendChild(b);
     });
+    const hr = document.createElement("div"); hr.style.margin = "10px 0 6px"; hr.className="dim"; hr.textContent="XML style (xml/styles.xml)"; wrap.appendChild(hr);
+    const rb = document.createElement("button"); rb.className="win-btn"; rb.style.width="auto"; rb.style.padding="4px 10px"; rb.textContent="Reload styles";
+    rb.onclick = async () => { if (Helix.xmlstyle && Helix.xmlstyle.load) { await Helix.xmlstyle.load("xml/styles.xml"); rb.textContent="Reloaded"; setTimeout(()=>rb.textContent="Reload styles",1200); } }; wrap.appendChild(rb);
     const info = document.createElement("div");
     info.className = "dim";
     info.style.marginTop = "10px";
-    info.textContent = "HelixOS MVP — Track A (JS simulation)";
+    info.textContent = "HelixOS MVP — Track A (JS simulation). hsh is core process (ps).";
     wrap.appendChild(info);
     Helix.wm.createWindow({ title: "Settings", body: wrap, x: 380, y: 120, w: 360, h: 200 });
   }
