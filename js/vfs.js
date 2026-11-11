@@ -36,8 +36,9 @@
     save();
   }
   function norm(path, cwd) {
-    if (!path || path === "~") path = "/home/" + (Helix.kernel && Helix.kernel.user || "guest");
-    if (path.startsWith("~/")) path = "/home/" + (Helix.kernel && Helix.kernel.user || "guest") + path.slice(1);
+    const user = (Helix.kernel && Helix.kernel.state && Helix.kernel.state.user) || "guest";
+    if (!path || path === "~") path = "/home/" + user;
+    if (path.startsWith("~/")) path = "/home/" + user + path.slice(1);
     if (!path.startsWith("/")) path = (cwd || "/") + "/" + path;
     const parts = path.split("/");
     const out = [];
@@ -118,8 +119,18 @@
     return { path: r.path, type: r.node.type, mode: r.node.mode, owner: r.node.owner, mtime: r.node.mtime, size: r.node.size || 0 };
   }
   function exists(path, cwd) { return !!getNode(path, cwd); }
+  function copy(src, dest, cwd) {
+    const s = getNode(src, cwd);
+    if (!s) throw new Error("No such file or directory: " + src);
+    if (s.node.type === "dir") throw new Error("cp: -r not implemented");
+    write(dest, read(src, cwd), cwd);
+  }
+  function move(src, dest, cwd) {
+    copy(src, dest, cwd);
+    rm(src, cwd, false);
+  }
   function reset() { state = { root: defaultFS() }; save(); }
   window.Helix = window.Helix || {};
   load();
-  Helix.vfs = { load, save, norm, getNode, list, read, write, mkdir, rm, stat, exists, reset, _state: () => state };
+  Helix.vfs = { load, save, norm, getNode, list, read, write, mkdir, rm, stat, exists, copy, move, reset, _state: () => state };
 })();
