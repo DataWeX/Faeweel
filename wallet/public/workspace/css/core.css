@@ -1,0 +1,10 @@
+.core-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.core-actions button {
+  min-height: 44px; padding: 10px 14px; border: 1px solid var(--border);
+  border-radius: 6px; background: var(--bg-2); color: var(--fg); font: inherit; cursor: pointer;
+}
+.core-actions button:disabled { opacity: .5; cursor: default; }
+.core-process-table { overflow-x: auto; }
+.core-process-table th { text-align: left; }
+.core-process-table td, .core-process-table th { padding: 8px; overflow-wrap: anywhere; }
+[data-core-message] { color: var(--accent); min-height: 1.7em; }
