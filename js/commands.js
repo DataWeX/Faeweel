@@ -1,6 +1,4 @@
 (function () {
-  function out(text, cls) { Helix.terminal.print(text, cls); }
-  function err(text) { out(text, "err"); }
   function argsOf(s) { return s.trim() ? s.trim().match(/(?:[^\s"]+|"[^"]*")+/g).map(x => x.replace(/^"|"$/g, "")) : []; }
   function resolveTarget(t) { return Helix.vfs.norm(t, Helix.kernel.state.cwd); }
   function tree(path, prefix, lines) {
@@ -37,7 +35,7 @@
   };
   const cmds = {
     help() {
-      return "Commands: help, man, clear, echo, pwd, cd, ls, cat, cp, mv, mkdir, touch, rm, grep, head, tail, tree, whoami, hostname, date, uname, neofetch, theme, startx, logout, resetfs, history";
+      return "Commands: help, man, clear, echo, pwd, cd, ls, cat, cp, mv, mkdir, touch, rm, grep, head, tail, tree, wc, env, whoami, hostname, date, uname, neofetch, theme, startx, logout, resetfs, history";
     },
     man(a) { if (!a[0]) return "usage: man COMMAND"; return manPages[a[0]] || "No manual entry for " + a[0]; },
     clear() { Helix.terminal.clear(); return ""; },
@@ -106,6 +104,18 @@
       const out = [a[0] || "."];
       return tree(target, "", out).join("\n");
     },
+    wc(a) {
+      if (!a[0]) throw new Error("wc: missing file");
+      const text = Helix.vfs.read(a[0], Helix.kernel.state.cwd);
+      const lines = text === "" ? 0 : text.split("\n").length;
+      const words = (text.trim().match(/\S+/g) || []).length;
+      const bytes = text.length;
+      return lines + " " + words + " " + bytes + " " + a[0];
+    },
+    env() {
+      const k = Helix.kernel.state;
+      return ["USER="+(k.user||"guest"), "HOME="+(k.user==="root"?"/root":"/home/"+(k.user||"guest")), "PWD="+k.cwd, "HOSTNAME="+k.host, "SHELL=/bin/hsh", "TERM=helix-tty"].join("\n");
+    },
     whoami() { return Helix.kernel.state.user || "guest"; },
     hostname() { return Helix.kernel.state.host; },
     date() { return new Date().toString(); },
@@ -137,20 +147,16 @@
   };
   async function run(line) {
     const raw = (line || "").trim();
-    if (!raw) return;
-    Helix.kernel.state.history.push(raw);
+    if (!raw) return "";
     const parts = argsOf(raw);
     const name = parts[0];
     const a = parts.slice(1);
     if (cmds[name]) {
-      try {
-        const r = cmds[name](a);
-        if (r) out(r);
-      } catch (e) { err(e.message || String(e)); }
-    } else {
-      err("hsh: command not found: " + name);
+      const r = cmds[name](a);
+      return r == null ? "" : String(r);
     }
+    throw new Error("hsh: command not found: " + name);
   }
   window.Helix = window.Helix || {};
-  Helix.commands = { run, cmds };
+  Helix.commands = { run, cmds, argsOf };
 })();

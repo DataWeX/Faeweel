@@ -19,16 +19,17 @@
   function setPrompt() { promptEl.textContent = Helix.kernel.prompt(); inputEl.type = loginMode && loginUser ? "password" : "text"; }
   function setLoginMode(v) { loginMode = v; loginUser = null; setPrompt(); if (v) print("HelixOS tty1", "dim"); }
   async function handle(line) {
+    const raw = (line || "");
     if (loginMode) {
       if (!loginUser) {
-        loginUser = line.trim();
+        loginUser = raw.trim();
         if (!loginUser) { setPrompt(); return; }
         print("Password: ", "dim");
         promptEl.textContent = "Password: ";
         inputEl.type = "password";
         return;
       } else {
-        const pass = line;
+        const pass = raw;
         if (Helix.kernel.checkAuth(loginUser, pass)) {
           Helix.kernel.login(loginUser);
           loginMode = false;
@@ -42,7 +43,12 @@
         return;
       }
     }
-    await Helix.shell.exec(line);
+    const trimmed = raw.trim();
+    if (trimmed) Helix.kernel.state.history.push(trimmed);
+    try {
+      const out = await Helix.shell.exec(raw);
+      if (out) print(out);
+    } catch (e) { print(e.message || String(e), "err"); }
     setPrompt();
   }
   function commonPrefix(arr) {
