@@ -28,10 +28,11 @@
     head: "head [-n N] FILE - show first lines",
     tail: "tail [-n N] FILE - show last lines",
     tree: "tree [path] - display directory tree",
+    ps: "ps - list processes (init/getty/hsh, DE when running)",
     theme: "theme [name] - set theme (phosphor|amber|ice|rose)",
     neofetch: "neofetch - show system info",
     resetfs: "resetfs - reset virtual filesystem to defaults",
-    startx: "startx - launch desktop (placeholder in MVP)"
+    startx: "startx - launch HelixDE on :0 (graphical session over tty1)"
   };
   const cmds = {
     help() {
@@ -149,7 +150,10 @@
         "             Memory: " + (performance && performance.memory ? Math.round(performance.memory.usedJSHeapSize/1048576)+"MB" : "n/a"),
       ].join("\n");
     },
-    startx() { return "HelixDE placeholder: graphical desktop not implemented in this MVP. (Console-first tty1 active.)"; },
+    startx() {
+      if (!Helix.desktop || !Helix.desktop.start) return "startx: desktop modules not loaded";
+      return Helix.desktop.start();
+    },
     logout() { Helix.kernel.logout(); Helix.terminal.setLoginMode(true); return "logout"; },
     resetfs() { Helix.vfs.reset(); return "filesystem reset to defaults (reload recommended)"; }
   };

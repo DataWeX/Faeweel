@@ -30,3 +30,28 @@ html, body { margin: 0; height: 100%; background: #000; color: var(--fg); font-f
 .dim { color: var(--dim); }
 .err { color: var(--error); }
 @media (max-width: 600px) { #boot, #output { font-size: 13px; } .layer { padding: 10px; } }
+
+/* HelixDE */
+#de { position: absolute; inset: 0; z-index: 5; display: flex; flex-direction: column; background: linear-gradient(180deg,#071018 0%, #0b1410 100%); color: var(--fg); }
+#de.hidden { display: none; }
+#de-bar { height: 28px; display: flex; align-items: center; gap: 12px; padding: 0 10px; background: rgba(0,0,0,0.45); border-bottom: 1px solid rgba(124,255,122,0.2); font-size: 13px; }
+.de-brand { font-weight: 700; color: var(--accent); margin-right: 8px; }
+#de-clock { margin-left: auto; color: var(--dim); }
+#de-desktop { position: relative; flex: 1; overflow: hidden; }
+#de-icons { position: absolute; inset: 10px auto 10px 10px; width: 220px; display: grid; grid-template-columns: repeat(2, 100px); gap: 8px; align-content: start; }
+.de-icon { padding: 8px 6px; border: 1px solid rgba(124,255,122,0.15); background: rgba(0,0,0,0.25); cursor: pointer; text-align: center; font-size: 12px; user-select: none; }
+.de-icon:hover { background: rgba(124,255,122,0.08); border-color: rgba(124,255,122,0.35); }
+.de-icon .glyph { font-size: 18px; display: block; margin-bottom: 4px; color: var(--accent); }
+#de-windows { position: absolute; inset: 0; }
+.win { position: absolute; min-width: 260px; min-height: 140px; background: #0a1210; border: 2px solid #2f6b34; box-shadow: 0 8px 24px rgba(0,0,0,0.6), inset 0 0 0 1px rgba(124,255,122,0.08); display: flex; flex-direction: column; }
+.win.focused { border-color: var(--accent); }
+.win-title { height: 30px; display: flex; align-items: center; padding: 0 8px; background: linear-gradient(180deg,#16381a,#0e2412); border-bottom: 1px solid #2f6b34; cursor: move; user-select: none; font-weight: 600; }
+.win.focused .win-title { background: linear-gradient(180deg,#1d4a22,#123018); }
+.win-title .title-text { flex: 1; }
+.win-btn { width: 22px; height: 22px; border: 1px solid rgba(124,255,122,0.3); background: rgba(0,0,0,0.3); color: var(--fg); cursor: pointer; font: inherit; line-height: 1; }
+.win-body { flex: 1; padding: 8px; overflow: auto; background: #050a08; border-top: 1px solid rgba(0,0,0,0.4); }
+.win-term-out { margin: 0; white-space: pre-wrap; word-break: break-word; font-size: 13px; line-height: 1.35; min-height: 120px; }
+.win-term-row { display: flex; gap: 6px; margin-top: 6px; }
+.win-term-row input { flex: 1; background: #08110c; color: var(--fg); border: 1px solid rgba(124,255,122,0.25); font: inherit; padding: 4px 6px; outline: none; }
+.win-list { margin: 0; padding-left: 0; list-style: none; font-size: 13px; }
+.win-list li { padding: 2px 0; }

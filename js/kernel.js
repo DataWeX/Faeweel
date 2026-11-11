@@ -71,7 +71,12 @@
   }
   function ps() {
     const rows = [["PID","TTY","USER","STAT","CMD"]];
-    Object.values(state.processes).forEach(p => rows.push([String(p.pid), p.tty||"?", p.user, p.state==="running"?"R":"S", p.cmd]));
+    const core = new Set(["init","getty"]);
+    Object.values(state.processes).forEach(p => {
+      let st = p.state==="running" ? "R" : "S";
+      if (core.has(p.name)) st += " [core]";
+      rows.push([String(p.pid), p.tty||"?", p.user, st, p.cmd]);
+    });
     const w = rows[0].map((_,i)=>Math.max(...rows.map(r=>r[i].length)));
     return rows.map(r=>r.map((c,i)=>c.padEnd(w[i])).join("  ")).join("\n");
   }

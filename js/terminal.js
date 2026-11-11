@@ -123,11 +123,13 @@
     }
   });
   document.addEventListener("click", () => { if (!termEl.classList.contains("hidden")) inputEl.focus(); });
-  function showTerminal() {
+  function show() {
     bootEl.classList.add("hidden");
     termEl.classList.remove("hidden");
     inputEl.focus();
   }
+  function hide() { termEl.classList.add("hidden"); }
+  function showTerminal() { show(); }
   async function boot() {
     const lines = [
       "Helix BIOS v1.0",
@@ -152,5 +154,5 @@
     setLoginMode(true);
   }
   window.Helix = window.Helix || {};
-  Helix.terminal = { print, clear, setLoginMode, setPrompt, boot, inputEl };
+  Helix.terminal = { print, clear, setLoginMode, setPrompt, boot, inputEl, show, hide };
 })();
