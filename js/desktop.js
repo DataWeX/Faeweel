@@ -36,46 +36,94 @@
     setTimeout(() => input.focus(), 0);
     return w;
   }
-  function openViewer(path, name) {
+  function downloadText(name, text) {
+    const blob = new Blob([text == null ? "" : String(text)], { type: "text/plain" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = name || "file.txt";
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  }
+  function pickUpload(onFile) {
+    const inp = document.createElement("input");
+    inp.type = "file";
+    inp.onchange = () => {
+      const f = inp.files && inp.files[0];
+      if (!f) return;
+      const r = new FileReader();
+      r.onload = () => onFile(f.name, String(r.result || ""));
+      r.readAsText(f);
+    };
+    inp.click();
+  }
+  function openEditor(path, name) {
     let content = "";
-    try { content = Helix.vfs.read(path, "/"); } catch (e) { content = e.message; }
-    const pre = document.createElement("pre");
-    pre.className = "win-term-out";
-    pre.textContent = content;
-    Helix.wm.createWindow({ title: "View: " + name, body: pre, x: 340, y: 90, w: 520, h: 340 });
+    try { content = Helix.vfs.read(path, "/"); } catch (e) { content = ""; }
+    const wrap = document.createElement("div");
+    const ta = document.createElement("textarea");
+    ta.value = content;
+    ta.style.width = "100%"; ta.style.height = "220px"; ta.style.background = "var(--bg,#050a08)";
+    ta.style.color = "var(--fg)"; ta.style.border = "1px solid rgba(124,255,122,0.25)";
+    ta.style.font = "inherit"; ta.style.padding = "6px"; ta.spellcheck = false;
+    const bar = document.createElement("div");
+    bar.style.marginTop = "6px"; bar.style.display = "flex"; bar.style.gap = "6px"; bar.style.flexWrap = "wrap";
+    function mkBtn(label, fn) { const b=document.createElement("button"); b.className="win-btn"; b.style.width="auto"; b.style.padding="4px 10px"; b.textContent=label; b.onclick=fn; return b; }
+    const status = document.createElement("span"); status.className="dim"; status.style.marginLeft="4px";
+    bar.appendChild(mkBtn("Save", () => { try { Helix.vfs.write(path, ta.value, "/"); status.textContent = "saved"; } catch(e){ status.textContent=e.message; status.className="err"; } }));
+    bar.appendChild(mkBtn("Download", () => { downloadText(name||"file.txt", ta.value); status.textContent="downloaded"; status.className="dim"; }));
+    bar.appendChild(status);
+    wrap.appendChild(ta); wrap.appendChild(bar);
+    Helix.wm.createWindow({ title: "Edit: " + (name||path), body: wrap, x: 320, y: 70, w: 560, h: 320 });
   }
   function openFiles() {
     const wrap = document.createElement("div");
-    const list = document.createElement("ul");
-    list.className = "win-list";
-    function render(path) {
+    let curPath = Helix.vfs.norm(Helix.kernel.state.cwd || "/home/" + Helix.kernel.state.user, "/");
+    const toolbar = document.createElement("div");
+    toolbar.style.display = "flex"; toolbar.style.gap = "6px"; toolbar.style.flexWrap = "wrap"; toolbar.style.marginBottom = "6px";
+    const head = document.createElement("div"); head.style.marginBottom = "6px"; head.className="dim";
+    const list = document.createElement("ul"); list.className = "win-list";
+    function mkBtn(label, fn) { const b=document.createElement("button"); b.className="win-btn"; b.style.width="auto"; b.style.padding="2px 8px"; b.textContent=label; b.onclick=fn; return b; }
+    function render() {
       list.innerHTML = "";
-      const head = document.createElement("div");
-      head.textContent = "Path: " + path;
-      head.style.marginBottom = "6px";
-      list.appendChild(head);
+      head.textContent = "Path: " + curPath;
       try {
-        const items = Helix.vfs.list(path, "/");
-        if (path !== "/") {
+        const items = Helix.vfs.list(curPath, "/");
+        if (curPath !== "/") {
           const up = document.createElement("li"); up.textContent = ".. (up)"; up.style.cursor="pointer";
-          up.onclick = () => render(Helix.vfs.norm(path + "/..", "/")); list.appendChild(up);
+          up.onclick = () => { curPath = Helix.vfs.norm(curPath + "/..", "/"); render(); }; list.appendChild(up);
         }
         items.forEach(name => {
-          const full = path === "/" ? "/" + name : path + "/" + name;
+          const full = curPath === "/" ? "/" + name : curPath + "/" + name;
           const n = Helix.vfs.getNode(full, "/");
           const li = document.createElement("li");
-          li.style.cursor = "pointer";
-          li.textContent = (n.node.type === "dir" ? "[DIR] " : "[FILE] ") + name + (n.node.type === "file" ? " (" + (n.node.size||0) + "b)" : "");
-          li.onclick = () => n.node.type === "dir" ? render(n.path) : openViewer(n.path, name);
+          li.style.display = "flex"; li.style.gap = "8px"; li.style.alignItems = "center";
+          const label = document.createElement("span");
+          label.style.cursor = "pointer"; label.style.flex = "1";
+          label.textContent = (n.node.type === "dir" ? "[DIR] " : "[FILE] ") + name + (n.node.type === "file" ? " (" + (n.node.size||0) + "b)" : "");
+          label.onclick = () => { if (n.node.type === "dir") { curPath = n.path; render(); } else { openEditor(n.path, name); } };
+          li.appendChild(label);
+          if (n.node.type === "file") {
+            const dl = document.createElement("button"); dl.className="win-btn"; dl.style.width="auto"; dl.style.padding="0 6px"; dl.textContent="↓";
+            dl.title="Download to device"; dl.onclick = (e)=>{ e.stopPropagation(); try{ downloadText(name, Helix.vfs.read(n.path,"/")); }catch(err){} };
+            li.appendChild(dl);
+          }
+          const del = document.createElement("button"); del.className="win-btn"; del.style.width="auto"; del.style.padding="0 6px"; del.textContent="x";
+          del.title="Delete"; del.onclick = (e)=>{ e.stopPropagation(); try{ Helix.vfs.rm(n.path,"/", n.node.type==="dir"); render(); }catch(err){ alert(err.message); } };
+          li.appendChild(del);
           list.appendChild(li);
         });
       } catch (e) {
         const li = document.createElement("li"); li.textContent = e.message; li.className = "err"; list.appendChild(li);
       }
     }
-    render(Helix.kernel.state.cwd || "/home/" + Helix.kernel.state.user);
-    wrap.appendChild(list);
-    Helix.wm.createWindow({ title: "Files", body: wrap, x: 300, y: 80, w: 460, h: 340 });
+    toolbar.appendChild(mkBtn("Up", () => { curPath = Helix.vfs.norm(curPath + "/..", "/"); render(); }));
+    toolbar.appendChild(mkBtn("Refresh", render));
+    toolbar.appendChild(mkBtn("New File", () => { const name=prompt("File name:"); if(!name) return; try{ Helix.vfs.write((curPath==="/"?"":curPath)+"/"+name,"","/"); render(); }catch(e){ alert(e.message);} }));
+    toolbar.appendChild(mkBtn("New Dir", () => { const name=prompt("Directory name:"); if(!name) return; try{ Helix.vfs.mkdir((curPath==="/"?"":curPath)+"/"+name,"/"); render(); }catch(e){ alert(e.message);} }));
+    toolbar.appendChild(mkBtn("Upload", () => { pickUpload((name,data)=>{ try{ Helix.vfs.write((curPath==="/"?"":curPath)+"/"+name,data,"/"); render(); }catch(e){ alert(e.message);} }); }));
+    wrap.appendChild(toolbar); wrap.appendChild(head); wrap.appendChild(list);
+    render();
+    Helix.wm.createWindow({ title: "Files", body: wrap, x: 260, y: 60, w: 560, h: 380 });
   }
   function openSettings() {
     const wrap = document.createElement("div");
