@@ -32,7 +32,25 @@
       } catch (e) { print(e.message || String(e)); }
       prompt.textContent = Helix.kernel.prompt();
     }
-    input.addEventListener("keydown", (e) => { if (e.key === "Enter") runLine(); });
+    input.addEventListener("keydown", async (e) => {
+      if (e.key === "Enter") { await runLine(); }
+      else if (e.key === "l" && e.ctrlKey) { e.preventDefault(); out.textContent = ""; }
+      else if (e.key === "c" && e.ctrlKey) { e.preventDefault(); print("^C"); input.value = ""; }
+      else if (e.key === "ArrowUp") {
+        e.preventDefault();
+        const h = Helix.kernel.state.history;
+        if (!h.length) return;
+        if (input._hi == null) { input._draft = input.value; input._hi = h.length - 1; }
+        else if (input._hi > 0) input._hi--;
+        input.value = h[input._hi] || "";
+      } else if (e.key === "ArrowDown") {
+        e.preventDefault();
+        const h = Helix.kernel.state.history;
+        if (input._hi == null) return;
+        if (input._hi < h.length - 1) { input._hi++; input.value = h[input._hi] || ""; }
+        else { input._hi = null; input.value = input._draft || ""; }
+      }
+    });
     const w = Helix.wm.createWindow({ title: "Terminal", body: wrap, x: 320 + Math.random()*40, y: 80 + Math.random()*30, w: 560, h: 340 });
     setTimeout(() => input.focus(), 0);
     return w;
@@ -119,12 +137,27 @@
     }
     toolbar.appendChild(mkBtn("Up", () => { curPath = Helix.vfs.norm(curPath + "/..", "/"); render(); }));
     toolbar.appendChild(mkBtn("Refresh", render));
-    toolbar.appendChild(mkBtn("New File", () => { const name=prompt("File name:"); if(!name) return; try{ Helix.vfs.write((curPath==="/"?"":curPath)+"/"+name,"","/"); render(); }catch(e){ alert(e.message);} }));
+    toolbar.appendChild(mkBtn("New File", () => { const name=prompt("File name:"); if(!name) return; try{ Helix.vfs.write((curPath==="/"?"":curPath)+"/"+name,"","/"); render(); openEditor((curPath==="/"?"":curPath)+"/"+name, name); }catch(e){ alert(e.message);} }));
     toolbar.appendChild(mkBtn("New Dir", () => { const name=prompt("Directory name:"); if(!name) return; try{ Helix.vfs.mkdir((curPath==="/"?"":curPath)+"/"+name,"/"); render(); }catch(e){ alert(e.message);} }));
     toolbar.appendChild(mkBtn("Upload", () => { pickUpload((name,data)=>{ try{ Helix.vfs.write((curPath==="/"?"":curPath)+"/"+name,data,"/"); render(); }catch(e){ alert(e.message);} }); }));
     wrap.appendChild(toolbar); wrap.appendChild(head); wrap.appendChild(list);
     render();
     Helix.wm.createWindow({ title: "Files", body: wrap, x: 260, y: 60, w: 560, h: 380 });
+  }
+  function openProcesses() {
+    const wrap = document.createElement("div");
+    const pre = document.createElement("pre");
+    pre.className = "win-term-out";
+    function refresh() { try { pre.textContent = Helix.kernel.ps(); } catch (e) { pre.textContent = e.message; } }
+    const bar = document.createElement("div");
+    bar.style.marginBottom = "6px"; bar.style.display = "flex"; bar.style.gap = "6px";
+    const b = document.createElement("button"); b.className = "win-btn"; b.style.width = "auto"; b.style.padding = "4px 10px"; b.textContent = "Refresh"; b.onclick = refresh;
+    bar.appendChild(b);
+    wrap.appendChild(bar); wrap.appendChild(pre);
+    refresh();
+    const w = Helix.wm.createWindow({ title: "Processes", body: wrap, x: 360, y: 90, w: 640, h: 320 });
+    const timer = setInterval(() => { if (!w.win.isConnected) clearInterval(timer); else refresh(); }, 2000);
+    return w;
   }
   function openSettings() {
     const wrap = document.createElement("div");
@@ -159,6 +192,7 @@
   const apps = [
     { id: "term", name: "Terminal", glyph: ">_", run: openTerminal },
     { id: "files", name: "Files", glyph: "[]", run: openFiles },
+    { id: "proc", name: "Processes", glyph: "#", run: openProcesses },
     { id: "settings", name: "Settings", glyph: "*", run: openSettings },
     { id: "about", name: "About", glyph: "i", run: openAbout },
     { id: "logout", name: "Logout", glyph: "x", run: () => logoutSession() }

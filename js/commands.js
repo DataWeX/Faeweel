@@ -29,6 +29,7 @@
     tail: "tail [-n N] FILE - show last lines",
     tree: "tree [path] - display directory tree",
     ps: "ps - list processes (init/getty/login/hsh, DE when running)",
+    kill: "kill PID - stop a non-core process",
     stat: "stat FILE - show file metadata",
     find: "find [path] [name] - list paths (optional name substring filter)",
     id: "id - print user identity",
@@ -41,7 +42,7 @@
   };
   const cmds = {
     help() {
-      return "Commands: help, man, clear, echo, pwd, cd, ls, cat, cp, mv, mkdir, touch, rm, rmdir, grep, head, tail, tree, wc, stat, find, env, ps, id, whoami, hostname, date, uptime, uname, dmesg, df, free, neofetch, theme, reloadstyle, passwd, startx, logout, resetfs, history | pipes and ; and > >> supported";
+      return "Commands: help, man, clear, echo, pwd, cd, ls, cat, cp, mv, mkdir, touch, rm, rmdir, grep, head, tail, tree, wc, stat, find, env, ps, kill, id, whoami, hostname, date, uptime, uname, dmesg, df, free, neofetch, theme, reloadstyle, passwd, startx, logout, resetfs, history | pipes and ; and > >> supported";
     },
     man(a) { if (!a[0]) return "usage: man COMMAND"; return manPages[a[0]] || "No manual entry for " + a[0]; },
     clear() { Helix.terminal.clear(); return ""; },
@@ -148,6 +149,15 @@
     uptime() { const s=Math.floor(performance.now()/1000); const m=Math.floor(s/60), sec=s%60; return "up " + m + " min, " + sec + " sec, 1 user, load average: 0.12, 0.08, 0.03"; },
     dmesg() { try { return Helix.vfs.read("/var/log/syslog","/"); } catch(e){ return "[boot] kernel initialized"; } },
     rmdir(a) { if(!a[0]) throw new Error("rmdir: missing operand"); const p=Helix.vfs.norm(a[0], Helix.kernel.state.cwd); const n=Helix.vfs.getNode(p,"/"); if(!n) throw new Error("rmdir: no such file or directory: "+a[0]); if(n.node.type!=="dir") throw new Error("rmdir: not a directory: "+a[0]); if(Object.keys(n.node.children).length) throw new Error("rmdir: directory not empty: "+a[0]); Helix.vfs.rm(a[0], Helix.kernel.state.cwd, false); return ""; },
+    kill(a) {
+      if (!a[0]) throw new Error("kill: usage: kill PID");
+      const pid = parseInt(a[0], 10);
+      const p = Helix.kernel.state.processes[pid];
+      if (!p) throw new Error("kill: (" + a[0] + ") - No such process");
+      if (Helix.kernel.isCoreProc && Helix.kernel.isCoreProc(pid)) throw new Error("kill: (" + pid + ") - Operation not permitted (core process)");
+      Helix.kernel.kill(pid);
+      return "";
+    },
     df() { return "Filesystem      1K-blocks  Used Available Use% Mounted on\nhelixos-vfs        65536    64     65472   1% /\nlocalstorage        n/a    n/a       n/a   -  /persist"; },
     free() { const m = performance && performance.memory ? Math.round(performance.memory.usedJSHeapSize/1048576) : 0; return "              total        used        free\nMem:           65536        "+m+"MB      "+Math.max(0,65536-m)+"\n(JS heap used shown; simulated)"; },
     true() { return ""; },
