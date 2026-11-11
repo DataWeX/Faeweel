@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "None",
+    "lib": [
+      "ES2020",
+      "DOM"
+    ],
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noEmitOnError": true,
+    "outFile": "public/workspace/js/core-process.js",
+    "types": []
+  },
+  "files": [
+    "bridge/core-process.ts"
+  ]
+}

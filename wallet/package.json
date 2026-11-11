@@ -1,0 +1,39 @@
+{
+  "name": "faewheel-wallet",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "node server/dev.js",
+    "operator": "node server/index.js",
+    "web": "vite --host 0.0.0.0 --port 5173",
+    "build": "npm run build:core && npm run build:bridge && npm run build:styles && vite build",
+    "preview": "vite preview --host 0.0.0.0 --port 5173",
+    "test:operator": "node server/operator.test.mjs",
+    "test:intent": "node src/engine/intent.test.mjs",
+    "test:quests": "node --test src/engine/quests.test.mjs",
+    "test:market": "node --test server/market.test.mjs",
+    "test:connection": "node --test src/engine/connection.test.mjs",
+    "test": "npm run test:intent && npm run test:operator && npm run test:quests && npm run test:market && npm run test:connection && npm run test:market-ui && npm run test:helix",
+    "test:market-ui": "node --test src/engine/market.test.mjs",
+    "test:helix": "npm run build:core && npm run build:bridge && npm run check:styles && node --test tests/helix-*.test.mjs",
+    "build:core": "node scripts/build-core.mjs",
+    "build:styles": "python3 scripts/build-shell-styles.py",
+    "check:styles": "python3 scripts/build-shell-styles.py --check",
+    "predev": "npm run build:core && npm run build:bridge && npm run build:styles",
+    "build:bridge": "tsc -p tsconfig.bridge.json",
+    "typecheck:bridge": "tsc -p tsconfig.bridge.json --noEmit"
+  },
+  "dependencies": {
+    "@simplewebauthn/server": "^13.2.2",
+    "ethers": "^6.15.0",
+    "express": "^4.21.2",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.4",
+    "typescript": "5.9.3",
+    "vite": "^6.0.3"
+  }
+}
