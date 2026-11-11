@@ -12,3 +12,8 @@ coverage/
 .nyc_output/
 transfers/
 temp/
+
+# Thread-local attachments and verification artifacts
+.hoplite/attachments/
+.hoplite/artifacts/
+.hoplite/archive/

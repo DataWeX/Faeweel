@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "None",
+    "lib": [
+      "ES2020",
+      "DOM"
+    ],
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noEmitOnError": true,
+    "types": [],
+    "rootDir": "bridge",
+    "outDir": "public/workspace/js"
+  },
+  "files": [
+    "bridge/core-process.ts",
+    "bridge/wallet-app.ts"
+  ]
+}
