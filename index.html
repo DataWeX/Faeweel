@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HelixOS</title>
+  <link rel="stylesheet" href="css/os.css">
+</head>
+<body>
+  <div id="screen">
+    <div id="crt"></div>
+    <div id="boot" class="layer"></div>
+    <div id="terminal" class="layer hidden">
+      <pre id="output" aria-live="polite"></pre>
+      <div id="prompt-line">
+        <span id="prompt"></span>
+        <input id="input" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+      </div>
+    </div>
+  </div>
+  <script src="js/vfs.js"></script>
+  <script src="js/kernel.js"></script>
+  <script src="js/commands.js"></script>
+  <script src="js/shell.js"></script>
+  <script src="js/terminal.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

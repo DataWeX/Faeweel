@@ -1,0 +1,32 @@
+:root {
+  --bg: #05080a;
+  --fg: #7CFF7A;
+  --dim: #3fae43;
+  --accent: #9dff8a;
+  --error: #ff6b6b;
+  --font: "IBM Plex Mono", "Fira Code", "JetBrains Mono", ui-monospace, monospace;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; background: #000; color: var(--fg); font-family: var(--font); }
+#screen { position: relative; height: 100%; overflow: hidden; background: radial-gradient(ellipse at center, #0b1410 0%, var(--bg) 70%); }
+.layer { position: absolute; inset: 0; padding: 16px; overflow: auto; }
+.hidden { display: none; }
+#crt {
+  position: absolute; inset: 0; pointer-events: none; z-index: 10;
+  background: repeating-linear-gradient(to bottom, rgba(255,255,255,0.03), rgba(255,255,255,0.03) 1px, transparent 1px, transparent 3px);
+  box-shadow: inset 0 0 80px rgba(0,0,0,0.6);
+  opacity: 0.35;
+}
+#boot, #output { white-space: pre-wrap; word-break: break-word; line-height: 1.35; font-size: 14px; }
+#terminal { display: flex; flex-direction: column; }
+#terminal.hidden { display: none; }
+#output { flex: 1; margin: 0; overflow: auto; }
+#prompt-line { display: flex; gap: 8px; align-items: center; }
+#prompt { color: var(--accent); white-space: pre; }
+#input {
+  flex: 1; background: transparent; color: var(--fg); border: none; outline: none;
+  font: inherit; padding: 0; margin: 0;
+}
+.dim { color: var(--dim); }
+.err { color: var(--error); }
+@media (max-width: 600px) { #boot, #output { font-size: 13px; } .layer { padding: 10px; } }
