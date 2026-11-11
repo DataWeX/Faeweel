@@ -14,8 +14,18 @@ Build a browser-based “HelixOS” experience. Two architectural directions exi
 
 ### Candidate engines (Track B) — to evaluate
 - **v86** (OSS): x86 PC emulator in WASM; boots real Linux images — strong for authentic kernel+shell; 32-bit guests common, x64 support/fit to confirm.
-- **JSLinux**: boots real Linux in-browser (Bellard) — quick reference/demo path; licensing/embedding constraints to check.
+- **JSLinux / TinyEMU x86_64 WASM** (Bellard): boots Linux in-browser with real shell; assets/kernels and configs often CORS-locked on upstream hosts — **vendoring locally** (same-origin) is the practical path. Licensing/redistribution of binaries to check.
 - **WebVM / CheerpX**: x86-to-WASM virtualization for Linux/x86 binaries/userspace in browser — evaluate x86_64 capability, networking, persistence, and embedding.
+
+### Proposed Phase 0 spike (concrete, to validate x86_64-in-browser)
+Goal: boot a **real x86_64 Linux shell** in-browser without Alpine 9p/CORS by serving everything from this workspace.
+- Vendor TinyEMU/JSlinux **x86_64** emulator glue+WASM and a compatible **x86_64 kernel** into `vendor/` and `firmware/` (same-origin).
+- Build a minimal **initrd** (cpio/gzip) with a **statically-linked x86_64 busybox** + `/init` (mount proc/sys/dev, install applets, exec `/bin/sh` on console e.g. `hvc0`/ttyS0 as kernel expects) so no 9p root is required.
+- Add a local VM config (memory/cmdline `rdinit=/init`, initrd path, virtio console) and a small web page/terminal glue (`term`/stdin/stdout) to run it; serve locally (e.g. `python3 -m http.server`) for preview.
+- **Validate:** kernel boots to busybox shell, basic commands run, keyboard I/O works.
+- **Risks/limits:** ~20MB+ kernel+assets, browser perf/memory, no clean VM stop/unload in TinyEMU WASM, device/network/persistence limited, initrd/kernel compatibility must be proven in-spike. If x86_64 is not viable, fall back to 32-bit guest or Track A/hybrid (document result).
+
+*None of the above is implemented yet in `/workspace/app` (earlier pasted TinyEMU/v86 work was from another session).*
 
 ## 1) Decisions needed (gate for Phase 1)
 - [ ] **Primary track:** A (sim), B (real VM), or **hybrid** (HelixOS UI shell + embedded VM terminal for “real” mode).
@@ -57,3 +67,5 @@ Details captured earlier (carry forward as applicable to chosen track): CRT retr
 
 ## 4) Immediate next step
 **Edit this file to answer §1 (especially Track A/B/hybrid and x86_64 requirement), set MVP priorities, then reply “proceed with roadmap decisions…”** — implementation will start only after decisions are recorded.
+
+Suggested next action based on latest request (“real shell in browser for x64 linux”): **proceed with Phase 0 spike** for Track B — vendor x86_64 TinyEMU/JSLinux assets + build local busybox initrd (per plan above) to prove feasibility in this workspace. Reply with explicit go-ahead and any constraints (must be x86_64 vs 32-bit fallback acceptable, offline vendoring allowed, target shell/packages).
