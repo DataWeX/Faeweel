@@ -159,6 +159,8 @@
       if (!Helix.desktop || !Helix.desktop.start) return "startx: desktop modules not loaded";
       return Helix.desktop.start();
     },
+    hsh() { return "hsh: core login shell process (init→getty→login→hsh). Not an app window; use Terminal or ps."; },
+    shell() { return cmds.hsh(); },
     logout() { Helix.kernel.logout(); Helix.terminal.setLoginMode(true); return "logout"; },
     resetfs() { Helix.vfs.reset(); return "filesystem reset to defaults (reload recommended)"; }
   };

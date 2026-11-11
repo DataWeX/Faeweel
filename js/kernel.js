@@ -81,7 +81,11 @@
     return rows.map(r=>r.map((c,i)=>c.padEnd(w[i])).join("  ")).join("\n");
   }
   function getCoreShell() { return getProcByName("hsh"); }
+  function isCoreProc(pid) {
+    const p = state.processes[pid];
+    return !!(p && ["init","getty","login","hsh"].indexOf(p.name) >= 0);
+  }
   window.Helix = window.Helix || {};
   loadSession();
-  Helix.kernel = { state, checkAuth, login, logout, prompt, loadSession, addProc, kill, ps, initProcs, getProcByName, getCoreShell };
+  Helix.kernel = { state, checkAuth, login, logout, prompt, loadSession, addProc, kill, ps, initProcs, getProcByName, getCoreShell, isCoreProc };
 })();
