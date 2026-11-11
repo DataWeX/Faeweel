@@ -25,6 +25,7 @@
       print(Helix.kernel.prompt() + v);
       if (!v.trim()) { prompt.textContent = Helix.kernel.prompt(); return; }
       Helix.kernel.state.history.push(v.trim());
+      if (Helix.kernel.savePrefs) Helix.kernel.savePrefs();
       try {
         if (v.trim() === "clear") { out.textContent = ""; }
         else { const r = await Helix.shell.exec(v); if (r) print(r); }

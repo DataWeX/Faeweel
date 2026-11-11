@@ -44,7 +44,7 @@
       }
     }
     const trimmed = raw.trim();
-    if (trimmed) Helix.kernel.state.history.push(trimmed);
+    if (trimmed) { Helix.kernel.state.history.push(trimmed); if (Helix.kernel.savePrefs) Helix.kernel.savePrefs(); }
     try {
       const out = await Helix.shell.exec(raw);
       if (out) print(out);

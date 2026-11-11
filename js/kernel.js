@@ -1,5 +1,6 @@
 (function () {
   const SESS = "helixos.session.v1";
+  const PREF = "helixos.pref.v1";
   const state = {
     booted: false,
     loggedIn: false,
@@ -11,6 +12,16 @@
     nextPid: 1,
     processes: {}
   };
+  function loadPrefs() {
+    try {
+      const p = JSON.parse(localStorage.getItem(PREF) || "null");
+      if (p && p.theme) state.theme = p.theme;
+      if (p && Array.isArray(p.history)) state.history = p.history.slice(-200);
+    } catch (e) {}
+  }
+  function savePrefs() {
+    try { localStorage.setItem(PREF, JSON.stringify({ theme: state.theme, history: state.history.slice(-200) })); } catch (e) {}
+  }
   function now() { return Date.now(); }
   function addProc(name, opts) {
     const pid = state.nextPid++;
@@ -54,10 +65,12 @@
     saveSession();
     kill(loginp.pid);
     addProc("hsh", { cmd: "-hsh", user: user, ppid: 1, tty: "tty1" });
+    savePrefs();
   }
   function logout() {
     const h = getProcByName("hsh");
     if (h) kill(h.pid);
+    savePrefs();
     state.loggedIn = false;
     state.user = null;
     state.cwd = "/";
@@ -87,5 +100,6 @@
   }
   window.Helix = window.Helix || {};
   loadSession();
-  Helix.kernel = { state, checkAuth, login, logout, prompt, loadSession, addProc, kill, ps, initProcs, getProcByName, getCoreShell, isCoreProc };
+  loadPrefs();
+  Helix.kernel = { state, checkAuth, login, logout, prompt, loadSession, addProc, kill, ps, initProcs, getProcByName, getCoreShell, isCoreProc, savePrefs, loadPrefs };
 })();
