@@ -1,29 +1,53 @@
-# HelixOS - project notes and requirements (collected)
+# HelixOS — Repurposed Ideas & Backlog
 
-## Current workspace state
-- `/workspace/app` was cleared earlier at user request (only `.git` kept). No prior project files or running preview are present in this workspace.
-- This file captures context shared in chat so work can continue here.
+Saved/repurposed from chat context (previous session artifacts are **not** in this workspace; `/workspace/app` currently has only git + notes). Use this as the working spec to rebuild/refine here.
 
-## Context / prior session logs (not present locally)
-User pasted fragments from earlier sessions describing a browser-based shell OS project ("HelixOS"/"NEXUS"/"AURORA" mentioned in logs) with goals/features like:
-- Boot sequence: BIOS-style header/memory/storage checks → kernel boot messages (timestamps, virtual hardware) → login/getty on `tty1` (guest/root, password check) → shell after auth.
-- `startx` launches a window manager/desktop (HelixDE + helixwm on `:0`); terminal becomes an app window; `logout` returns to console. GUI apps require desktop (DISPLAY) where applicable.
-- Virtual filesystem persisted via `localStorage`, Unix-like layout (`/bin`, `/home`, `/etc`, `/usr`, `/tmp`, `/var`, `/root`, guest dirs), preloaded files (README, motd, fortunes, todo, poem, secret dotfile), multiple users.
-- Shell: POSIX-like commands (file ops, text processing, system utils, process mgmt, networking-ish fakes), command history, tab completion, pipes/redirects (basic), ANSI color output, Ctrl+C/L/U/A/E shortcuts, man/help, neofetch, themes (phosphor/amber/ice/rose/ultraviolet), status bar (hostname/user/time/load or CPU/mem/time).
-- TUI/apps: editor (nano-like), calculator/bc/python-eval, snake, tetris?, hangman?, matrix rain, fortune, cowsay, clock, file browser/manager, mail/AI chat/music visualizer/browser (fake) — scope varied across notes.
-- File manager: upload/drag-drop into HelixOS vfs, save/download to device, open/edit files; UI as overlay/window.
-- Media manager (requested, details TBD): "its own media manager" — needs clarification (images/audio/video, library, preview/play, folders/tags, import/export).
-- Wine-style compatibility layer (requested in logs): fake Wine for browser-based OS (cannot run real Win32). Ideas mentioned: `wine` commands, wine prefix, window/chrome for `.exe`, map notepad/explorer/cmd to Helix apps, honest errors for real binaries/PE; neofetch should report actual JS kernel (not Linux).
-- Stack: static HTML/CSS/JS (no backend/Vite preferred in notes), modular JS (e.g. kernel/vfs/shell/commands/apps/terminal/main or consolidated), CRT/retro-futuristic visuals (scanlines, phosphor/glow, fonts like JetBrains Mono/Fira/IBM Plex/VT323).
-- Preview previously served on port 8000 in other env (not available here).
+## 1) Product vision
+- **HelixOS**: a browser-based, Linux-like shell/desktop experience (static HTML/CSS/JS, no backend required).
+- **Honest identity**: not real Linux — runs as a JavaScript “kernel” in the browser (e.g. `wasm32`/`helix 1.0.0-js` style in UI). Features like Wine are **compatibility shims**, not real Win32/ELF execution.
 
-## User clarifications still needed
-- Exact product name and scope to build now (HelixOS features to include/exclude).
-- "Helix OS and then a wallet" was mentioned earlier but not found/specified — include wallet? what kind?
-- Media manager: supported media types and required features/UI.
-- Wine layer: exact command set, prefix paths, `.exe` mappings, and error behavior.
-- Should this be rebuilt from scratch in this workspace? preferred file structure?
-- Any run/preview expectations for this environment.
+## 2) Boot & session flow (repurposed)
+- Boot: BIOS-style checks (memory/storage) → kernel/dmesg-style log (timestamps, virtual hardware) → handoff to `tty1`.
+- Login/getty: `login:` prompt on `tty1` (e.g. `guest`/`root`, simple password/auth model), shell only after authentication.
+- Console-first UX: text shell on TTY; graphical environment started explicitly via `startx` (e.g. HelixDE + helixwm on `:0`).
+- Desktop model: terminal becomes an app/window inside DE; `logout` returns to console. GUI apps require active display/DE where applicable.
 
-## Next step
-User: edit this file to confirm priorities and details, then ask to proceed.
+## 3) Virtual system
+- **VFS** persisted in `localStorage` with Unix-like layout (`/bin`, `/home`, `/etc`, `/usr`, `/tmp`, `/var`, `/root`, per-user dirs).
+- Seeded content: README, `/etc/motd`, fortunes, sample docs/todo/poem, dotfiles; `resetfs`/reseed path for upgrades.
+- Multi-user basics: home dirs, ownership/mode metadata as feasible.
+
+## 4) Shell & commands
+- POSIX-like command set (file ops, text processing, system/process/net-ish fakes, utilities) with help/man, tab completion, history, basic pipes/redirects, ANSI color.
+- Shortcuts: Enter, history nav, Tab, Ctrl+C/L/U/A/E (and others as needed).
+- Utilities/apps ideas: `neofetch` (report JS kernel truthfully), `edit/nano`-like, `bc`/calc, `python`-expr eval (toy), themes, status/menubar info (host/user/time/load/cpu/mem).
+
+## 5) Apps & windows (TTY overlays / DE windows)
+- Core: terminal, text editor, file browser/manager.
+- File manager: browse VFS, open/edit, upload/drag-drop into VFS, download/save to device; handle binary vs text safely.
+- Fun/system: `snake` (+ tetris/hangman optional), `matrix`, `fortune`, `cowsay`, clock, settings/theme.
+- **Media manager (requested, spec TBD)** — candidate repurpose:
+  - Library for images/audio/video stored in VFS (and/or imported).
+  - Import/upload, preview/play, basic metadata, folders/tags, open/download to device.
+  - Run as TTY overlay or DE app window consistent with chosen UX.
+
+## 6) Wine-style compatibility layer (shim, not real Wine)
+- `wine <program>` command + basic prefix layout in VFS (e.g. `~/.wine/drive_c/...`).
+- Map common names to Helix apps (e.g. `notepad.exe`, `explorer.exe`, `cmd.exe`) and provide `winecfg`.
+- Refuse real PE/Win32 binaries with clear, honest errors; file manager/open handlers should detect and explain.
+- Desktop launcher/menu entry when DE is running; mention in seeded docs/motd.
+
+## 7) Visual design
+- Retro-futuristic CRT terminal aesthetic (scanlines, vignette, phosphor glow/flicker), dark theme with accent palettes (phosphor/amber/ice/rose/ultraviolet).
+- Monospace fonts (e.g. JetBrains Mono/Fira/IBM Plex Mono/VT323). Responsive full-viewport layout.
+
+## 8) Open questions / to confirm before build
+- [ ] Final name/scope for this rebuild (HelixOS/NEXUS/etc.) and MVP feature set.
+- [ ] “Helix OS and then a wallet” mentioned earlier — include a **wallet** app/module? what kind (UI mock, VFS-stored data, crypto? scope)?
+- [ ] Media manager: supported types, features, and UI (TTY vs window).
+- [ ] Wine shim: exact command behavior, mappings, prefix paths, PE detection/error text.
+- [ ] Preferred file/module structure and run/preview method in this environment.
+- [ ] Start implementation now? if so, prioritize: (a) boot/login/shell, (b) startx/DE+wm, (c) file manager, (d) media manager, (e) wine shim.
+
+---
+*Edit this file to set priorities and answer open questions, then ask to proceed.*
