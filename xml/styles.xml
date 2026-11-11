@@ -9,6 +9,17 @@
     <item name="font">"IBM Plex Mono", "Fira Code", ui-monospace, monospace</item>
   </style>
 
+  <style name="Desktop">
+    <item name="background">linear-gradient(180deg,#071018 0%, #0b1410 100%)</item>
+  </style>
+
+  <style name="Desktop.Bar">
+    <item name="height">28px</item>
+    <item name="background">rgba(0,0,0,0.45)</item>
+    <item name="borderBottom">1px solid rgba(124,255,122,0.2)</item>
+    <item name="color">var(--fg)</item>
+  </style>
+
   <style name="Window">
     <item name="background">#0a1210</item>
     <item name="border">2px solid #2f6b34</item>
@@ -41,6 +52,17 @@
   <style name="App.Button">
     <item name="background">rgba(0,0,0,0.3)</item>
     <item name="border">1px solid rgba(124,255,122,0.3)</item>
+    <item name="color">var(--fg)</item>
+  </style>
+
+  <style name="App.Input">
+    <item name="background">#08110c</item>
+    <item name="border">1px solid rgba(124,255,122,0.25)</item>
+    <item name="color">var(--fg)</item>
+  </style>
+
+  <style name="App.Terminal">
+    <item name="background">#050a08</item>
     <item name="color">var(--fg)</item>
   </style>
 </resources>

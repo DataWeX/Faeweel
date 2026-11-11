@@ -30,13 +30,14 @@
     tree: "tree [path] - display directory tree",
     ps: "ps - list processes (init/getty/hsh, DE when running)",
     theme: "theme [name] - set theme (phosphor|amber|ice|rose)",
+    reloadstyle: "reloadstyle - reload window/app styles from xml/styles.xml",
     neofetch: "neofetch - show system info",
     resetfs: "resetfs - reset virtual filesystem to defaults",
     startx: "startx - launch HelixDE on :0 (graphical session over tty1)"
   };
   const cmds = {
     help() {
-      return "Commands: help, man, clear, echo, pwd, cd, ls, cat, cp, mv, mkdir, touch, rm, grep, head, tail, tree, wc, env, ps, whoami, hostname, date, uname, neofetch, theme, startx, logout, resetfs, history | pipes and ; and > >> supported";
+      return "Commands: help, man, clear, echo, pwd, cd, ls, cat, cp, mv, mkdir, touch, rm, grep, head, tail, tree, wc, env, ps, whoami, hostname, date, uname, neofetch, theme, reloadstyle, startx, logout, resetfs, history | pipes and ; and > >> supported";
     },
     man(a) { if (!a[0]) return "usage: man COMMAND"; return manPages[a[0]] || "No manual entry for " + a[0]; },
     clear() { Helix.terminal.clear(); return ""; },
@@ -138,6 +139,10 @@
       r.setProperty("--bg", map[t][0]); r.setProperty("--fg", map[t][1]); r.setProperty("--accent", map[t][2]);
       Helix.kernel.state.theme = t;
       return "theme: " + t;
+    },
+    reloadstyle() {
+      if (!Helix.xmlstyle || !Helix.xmlstyle.load) return "reloadstyle: xmlstyle not loaded";
+      return Helix.xmlstyle.load("xml/styles.xml").then(ok => ok ? "xml styles reloaded (xml/styles.xml)" : "xmlstyle: failed to load");
     },
     neofetch() {
       return [
