@@ -19,12 +19,13 @@
     ls: "ls [-l] [path] - list directory contents",
     cd: "cd [dir] - change directory (~ for home)",
     cat: "cat FILE... - print file contents",
-    cp: "cp SRC DEST - copy file",
-    mv: "mv SRC DEST - move/rename file",
+    cp: "cp [-r] SRC DEST - copy file or directory",
+    mv: "mv SRC DEST - move/rename file or directory",
     rm: "rm [-r] FILE - remove file or directory",
-    mkdir: "mkdir DIR - create directory",
-    touch: "touch FILE - create empty file if missing",
-    grep: "grep PATTERN FILE - search for pattern in file",
+    rmdir: "rmdir DIR - remove empty directory",
+    mkdir: "mkdir [-p] DIR - create directory",
+    touch: "touch FILE - create/update file mtime",
+    grep: "grep [-i] PATTERN [FILE] - search for pattern",
     head: "head [-n N] FILE - show first lines",
     tail: "tail [-n N] FILE - show last lines",
     tree: "tree [path] - display directory tree",
@@ -42,11 +43,11 @@
   };
   const cmds = {
     help() {
-      return "Commands: help, man, clear, echo, pwd, cd, ls, cat, cp, mv, mkdir, touch, rm, rmdir, grep, head, tail, tree, wc, stat, find, env, ps, kill, id, whoami, hostname, date, uptime, uname, dmesg, df, free, neofetch, theme, reloadstyle, passwd, startx, logout, resetfs, history | pipes and ; and > >> supported";
+      return "Commands: help, man, clear, echo, pwd, cd, ls, cat, cp, mv, mkdir, touch, rm, rmdir, grep, head, tail, tree, wc, stat, find, env, ps, kill, id, whoami, hostname, date, uptime, uname, dmesg, df, free, fortune, neofetch, theme, reloadstyle, passwd, startx, logout, resetfs, history | pipes ; > >>, mkdir -p, cp -r, grep -i";
     },
     man(a) { if (!a[0]) return "usage: man COMMAND"; return manPages[a[0]] || "No manual entry for " + a[0]; },
     clear() { Helix.terminal.clear(); return ""; },
-    echo(a) { return a.join(" "); },
+    echo(a) { if (a[0] === "-n") return a.slice(1).join(" "); return a.join(" "); },
     pwd() { return Helix.kernel.state.cwd; },
     cd(a) {
       const target = a[0] || "~";
@@ -76,10 +77,30 @@
       if (!a[0]) return stdin != null ? String(stdin) : "";
       return a.map(f => Helix.vfs.read(f, Helix.kernel.state.cwd)).join("\n");
     },
-    cp(a) { if (a.length < 2) throw new Error("cp: missing operand"); Helix.vfs.copy(a[0], a[1], Helix.kernel.state.cwd); return ""; },
+    cp(a) {
+      const r = a.includes("-r") || a.includes("-R");
+      const args = a.filter(x => !x.startsWith("-"));
+      if (args.length < 2) throw new Error("cp: missing operand");
+      Helix.vfs.copy(args[0], args[1], Helix.kernel.state.cwd, { r });
+      return "";
+    },
     mv(a) { if (a.length < 2) throw new Error("mv: missing operand"); Helix.vfs.move(a[0], a[1], Helix.kernel.state.cwd); return ""; },
-    mkdir(a) { if (!a[0]) throw new Error("mkdir: missing operand"); Helix.vfs.mkdir(a[0], Helix.kernel.state.cwd); return ""; },
-    touch(a) { if (!a[0]) throw new Error("touch: missing file"); if (!Helix.vfs.exists(a[0], Helix.kernel.state.cwd)) Helix.vfs.write(a[0], "", Helix.kernel.state.cwd); return ""; },
+    mkdir(a) {
+      const pflag = a.includes("-p");
+      const target = a.find(x => !x.startsWith("-"));
+      if (!target) throw new Error("mkdir: missing operand");
+      Helix.vfs.mkdir(target, Helix.kernel.state.cwd, { p: pflag });
+      return "";
+    },
+    touch(a) {
+      if (!a[0]) throw new Error("touch: missing file");
+      for (const f of a.filter(x=>!x.startsWith("-"))) {
+        const n = Helix.vfs.getNode(f, Helix.kernel.state.cwd);
+        if (!n) Helix.vfs.write(f, "", Helix.kernel.state.cwd);
+        else if (n.node.type === "file") { n.node.mtime = new Date().toISOString(); Helix.vfs.save(); }
+      }
+      return "";
+    },
     rm(a) {
       const r = a.includes("-r") || a.includes("-rf") || a.includes("-fr");
       const target = a.find(x => !x.startsWith("-"));
@@ -87,14 +108,18 @@
       Helix.vfs.rm(target, Helix.kernel.state.cwd, r); return "";
     },
     grep(a, stdin) {
-      if (!a[0]) throw new Error("grep: usage: grep PATTERN [FILE]");
-      const pat = a[0];
+      if (!a[0]) throw new Error("grep: usage: grep [-i] PATTERN [FILE]");
+      const ic = a.includes("-i");
+      const args = a.filter(x => !x.startsWith("-"));
+      const pat = args[0];
+      if (!pat) throw new Error("grep: usage: grep [-i] PATTERN [FILE]");
       let text;
-      if (a[1]) text = Helix.vfs.read(a[1], Helix.kernel.state.cwd);
+      if (args[1]) text = Helix.vfs.read(args[1], Helix.kernel.state.cwd);
       else if (stdin != null) text = String(stdin);
       else throw new Error("grep: missing file");
-      const re = new RegExp(pat.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
-      return text.split("\n").filter(l => re.test(l)).join("\n");
+      const esc = pat.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const re = new RegExp(esc, ic ? "i" : "");
+      return String(text).split("\n").filter(l => re.test(l)).join("\n");
     },
     head(a, stdin) {
       let n = 10, file;
@@ -130,7 +155,14 @@
       const k = Helix.kernel.state;
       return ["USER="+(k.user||"guest"), "HOME="+(k.user==="root"?"/root":"/home/"+(k.user||"guest")), "PWD="+k.cwd, "HOSTNAME="+k.host, "SHELL=/bin/hsh", "TERM=helix-tty"].join("\n");
     },
-    stat(a) { if(!a[0]) throw new Error("stat: missing file"); const s=Helix.vfs.stat(a[0], Helix.kernel.state.cwd); return "path: "+s.path+"\ntype: "+s.type+"\nmode: "+s.mode+"\nowner: "+s.owner+"\nsize: "+s.size+"\nmtime: "+s.mtime; },
+    stat(a) { if(!a[0]) throw new Error("stat: missing file"); const s=Helix.vfs.stat(a[0], Helix.kernel.state.cwd); const n=Helix.vfs.getNode(a[0], Helix.kernel.state.cwd); const extra=(n&&n.node&&(n.node.mime||n.node.encoding)) ? ("\nmime: "+(n.node.mime||"-")+"\nencoding: "+(n.node.encoding||"-")) : ""; return "path: "+s.path+"\ntype: "+s.type+"\nmode: "+s.mode+"\nowner: "+s.owner+"\nsize: "+s.size+"\nmtime: "+s.mtime+extra; },
+    fortune() {
+      try {
+        const txt = Helix.vfs.read("/usr/share/fortunes", "/");
+        const items = txt.split(/\n---\n/).map(x=>x.trim()).filter(Boolean);
+        return items.length ? items[Math.floor(Math.random()*items.length)] : "";
+      } catch(e){ return "fortune: no fortunes"; }
+    },
     find(a) {
       const base = a[0] && !a[0].startsWith("-") ? a[0] : ".";
       const pat = (a[1] && !a[1].startsWith("-")) ? a[1] : (a[0] && a[0].startsWith("-") ? "" : "");

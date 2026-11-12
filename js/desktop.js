@@ -55,13 +55,24 @@
     setTimeout(() => input.focus(), 0);
     return w;
   }
-  function downloadText(name, text) {
-    const blob = new Blob([text == null ? "" : String(text)], { type: "text/plain" });
+  function downloadNode(path, name) {
+    let n;
+    try { n = Helix.vfs.getNode(path, "/"); } catch (e) { return; }
+    if (!n || n.node.type !== "file") return;
+    const node = n.node;
+    let href, revoke = false;
+    if (node.encoding === "dataurl" && typeof node.content === "string" && node.content.startsWith("data:")) {
+      href = node.content;
+    } else {
+      const blob = new Blob([node.content == null ? "" : String(node.content)], { type: node.mime || "application/octet-stream" });
+      href = URL.createObjectURL(blob);
+      revoke = true;
+    }
     const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = name || "file.txt";
+    a.href = href;
+    a.download = name || n.name || "file";
     document.body.appendChild(a); a.click(); a.remove();
-    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    if (revoke) setTimeout(() => URL.revokeObjectURL(href), 1000);
   }
   function pickUpload(onFile) {
     const inp = document.createElement("input");
@@ -70,29 +81,51 @@
       const f = inp.files && inp.files[0];
       if (!f) return;
       const r = new FileReader();
-      r.onload = () => onFile(f.name, String(r.result || ""));
-      r.readAsText(f);
+      const isText = (f.type || "").startsWith("text/") || /\.(txt|md|js|json|css|html|xml|sh|c|h|py|rb|log|conf|csv|ts|tsx)$/i.test(f.name);
+      r.onload = () => {
+        if (isText) onFile(f.name, String(r.result || ""), {});
+        else onFile(f.name, String(r.result || ""), { encoding: "dataurl", mime: f.type || "application/octet-stream", size: f.size });
+      };
+      if (isText) r.readAsText(f); else r.readAsDataURL(f);
     };
     inp.click();
   }
   function openEditor(path, name) {
-    let content = "";
-    try { content = Helix.vfs.read(path, "/"); } catch (e) { content = ""; }
+    let node = null, content = "";
+    try { node = Helix.vfs.getNode(path, "/"); content = Helix.vfs.read(path, "/"); } catch (e) { content = ""; }
     const wrap = document.createElement("div");
-    const ta = document.createElement("textarea");
-    ta.value = content;
-    ta.style.width = "100%"; ta.style.height = "220px"; ta.style.background = "var(--bg,#050a08)";
-    ta.style.color = "var(--fg)"; ta.style.border = "1px solid rgba(124,255,122,0.25)";
-    ta.style.font = "inherit"; ta.style.padding = "6px"; ta.spellcheck = false;
+    const isData = node && node.node && node.node.encoding === "dataurl";
+    const isImg = isData && /^data:image\//.test(node.node.content || "");
+    if (isImg) {
+      const img = document.createElement("img");
+      img.src = node.node.content;
+      img.style.maxWidth = "100%"; img.style.maxHeight = "260px"; img.style.display = "block";
+      wrap.appendChild(img);
+    } else if (isData) {
+      const info = document.createElement("div");
+      info.className = "dim";
+      info.textContent = "Binary/media file (" + ((node.node.mime)||"data") + ", " + (node.node.size||0) + " bytes). Preview not available; use Download.";
+      wrap.appendChild(info);
+    } else {
+      const ta = document.createElement("textarea");
+      ta.value = content;
+      ta.style.width = "100%"; ta.style.height = "220px"; ta.style.background = "var(--bg,#050a08)";
+      ta.style.color = "var(--fg)"; ta.style.border = "1px solid rgba(124,255,122,0.25)";
+      ta.style.font = "inherit"; ta.style.padding = "6px"; ta.spellcheck = false;
+      wrap._ta = ta;
+      wrap.appendChild(ta);
+    }
     const bar = document.createElement("div");
     bar.style.marginTop = "6px"; bar.style.display = "flex"; bar.style.gap = "6px"; bar.style.flexWrap = "wrap";
     function mkBtn(label, fn) { const b=document.createElement("button"); b.className="win-btn"; b.style.width="auto"; b.style.padding="4px 10px"; b.textContent=label; b.onclick=fn; return b; }
     const status = document.createElement("span"); status.className="dim"; status.style.marginLeft="4px";
-    bar.appendChild(mkBtn("Save", () => { try { Helix.vfs.write(path, ta.value, "/"); status.textContent = "saved"; } catch(e){ status.textContent=e.message; status.className="err"; } }));
-    bar.appendChild(mkBtn("Download", () => { downloadText(name||"file.txt", ta.value); status.textContent="downloaded"; status.className="dim"; }));
+    if (!isData) {
+      bar.appendChild(mkBtn("Save", () => { try { Helix.vfs.write(path, wrap._ta.value, "/"); status.textContent = "saved"; status.className="dim"; } catch(e){ status.textContent=e.message; status.className="err"; } }));
+    }
+    bar.appendChild(mkBtn("Download", () => { downloadNode(path, name||"file"); status.textContent="downloaded"; status.className="dim"; }));
     bar.appendChild(status);
-    wrap.appendChild(ta); wrap.appendChild(bar);
-    Helix.wm.createWindow({ title: "Edit: " + (name||path), body: wrap, x: 320, y: 70, w: 560, h: 320 });
+    wrap.appendChild(bar);
+    Helix.wm.createWindow({ title: (isData ? "View: " : "Edit: ") + (name||path), body: wrap, x: 320, y: 70, w: 560, h: isImg ? 360 : 320 });
   }
   function openFiles() {
     const wrap = document.createElement("div");
@@ -123,9 +156,12 @@
           li.appendChild(label);
           if (n.node.type === "file") {
             const dl = document.createElement("button"); dl.className="win-btn"; dl.style.width="auto"; dl.style.padding="0 6px"; dl.textContent="↓";
-            dl.title="Download to device"; dl.onclick = (e)=>{ e.stopPropagation(); try{ downloadText(name, Helix.vfs.read(n.path,"/")); }catch(err){} };
+            dl.title="Download to device"; dl.onclick = (e)=>{ e.stopPropagation(); downloadNode(n.path, name); };
             li.appendChild(dl);
           }
+          const rn = document.createElement("button"); rn.className="win-btn"; rn.style.width="auto"; rn.style.padding="0 6px"; rn.textContent="r";
+          rn.title="Rename"; rn.onclick = (e)=>{ e.stopPropagation(); const nn=prompt("Rename to:", name); if(!nn || nn===name) return; const dest=(curPath==="/"?"":curPath)+"/"+nn; try{ Helix.vfs.move(n.path, dest, "/"); render(); }catch(err){ alert(err.message); } };
+          li.appendChild(rn);
           const del = document.createElement("button"); del.className="win-btn"; del.style.width="auto"; del.style.padding="0 6px"; del.textContent="x";
           del.title="Delete"; del.onclick = (e)=>{ e.stopPropagation(); try{ Helix.vfs.rm(n.path,"/", n.node.type==="dir"); render(); }catch(err){ alert(err.message); } };
           li.appendChild(del);
@@ -139,7 +175,7 @@
     toolbar.appendChild(mkBtn("Refresh", render));
     toolbar.appendChild(mkBtn("New File", () => { const name=prompt("File name:"); if(!name) return; try{ Helix.vfs.write((curPath==="/"?"":curPath)+"/"+name,"","/"); render(); openEditor((curPath==="/"?"":curPath)+"/"+name, name); }catch(e){ alert(e.message);} }));
     toolbar.appendChild(mkBtn("New Dir", () => { const name=prompt("Directory name:"); if(!name) return; try{ Helix.vfs.mkdir((curPath==="/"?"":curPath)+"/"+name,"/"); render(); }catch(e){ alert(e.message);} }));
-    toolbar.appendChild(mkBtn("Upload", () => { pickUpload((name,data)=>{ try{ Helix.vfs.write((curPath==="/"?"":curPath)+"/"+name,data,"/"); render(); }catch(e){ alert(e.message);} }); }));
+    toolbar.appendChild(mkBtn("Upload", () => { pickUpload((name,data,opts)=>{ try{ Helix.vfs.write((curPath==="/"?"":curPath)+"/"+name,data,"/",opts||{}); render(); }catch(e){ alert(e.message);} }); }));
     wrap.appendChild(toolbar); wrap.appendChild(head); wrap.appendChild(list);
     render();
     Helix.wm.createWindow({ title: "Files", body: wrap, x: 260, y: 60, w: 560, h: 380 });

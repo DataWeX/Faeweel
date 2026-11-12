@@ -2,9 +2,13 @@
   const STORAGE = "helixos.vfs.v1";
   function now() { return new Date().toISOString(); }
   function mkDir(mode, owner) { return { type: "dir", mode: mode || "755", owner: owner || "root", mtime: now(), children: {} }; }
-  function mkFile(content, mode, owner) {
-    const c = content || "";
-    return { type: "file", mode: mode || "644", owner: owner || "root", mtime: now(), content: c, size: c.length };
+  function mkFile(content, mode, owner, opts) {
+    opts = opts || {};
+    const c = content == null ? "" : String(content);
+    const f = { type: "file", mode: mode || "644", owner: owner || "root", mtime: now(), content: c, size: opts.size != null ? opts.size : c.length };
+    if (opts.mime) f.mime = opts.mime;
+    if (opts.encoding) f.encoding = opts.encoding;
+    return f;
   }
   function defaultFS() {
     const root = mkDir();
@@ -18,11 +22,17 @@
     root.children.usr.children.share = mkDir();
     root.children.root = mkDir("700", "root");
     root.children.home.children.guest = mkDir("755", "guest");
+    root.children.home.children.guest.children.Documents = mkDir("755", "guest");
+    root.children.home.children.guest.children.Pictures = mkDir("755", "guest");
+    root.children.home.children.guest.children.Music = mkDir("755", "guest");
     root.children.etc.children.hostname = mkFile("helix\n");
-    root.children.etc.children.motd = mkFile("Welcome to HelixOS (browser JS kernel simulation)\nType 'help' for commands. Type 'startx' for desktop placeholder.\n");
+    root.children.etc.children.motd = mkFile("Welcome to HelixOS (browser JS kernel simulation)\nType 'help' for commands. Type 'startx' for HelixDE.\n");
     root.children.etc.children.passwd = mkFile("root:root\nguest:guest\n");
-    root.children.home.children.guest.children["README.txt"] = mkFile("HelixOS guest home.\nTry: ls, cat /etc/motd, neofetch, theme amber\n");
-    root.children.var.children.log.children.syslog = mkFile("[boot] kernel initialized\n");
+    root.children.etc.children["helix.conf"] = mkFile("NAME=HelixOS\nVERSION=1.0.0-js\nKERNEL=helix-1.0.0-js (browser)\nSHELL=/bin/hsh\n");
+    root.children.home.children.guest.children["README.txt"] = mkFile("HelixOS guest home.\nTry: ls, cat /etc/motd, neofetch, startx\nFiles persist in browser localStorage (helixos.vfs.v1).\n");
+    root.children.home.children.guest.children.Documents.children["notes.txt"] = mkFile("HelixOS notes\n- Boot: BIOS -> kernel log -> getty tty1 -> login\n- Core shell: hsh (init/getty/login/hsh)\n- GUI: startx -> HelixDE on :0\n");
+    root.children.usr.children.share.children.fortunes = mkFile("Simplicity is prerequisite for reliability.\n---\nIn a browser, every sandbox is a small universe.\n---\nThere is no real Linux here; only a careful simulation.\n");
+    root.children.var.children.log.children.syslog = mkFile("[boot] kernel initialized\n[boot] vfs mounted\n[boot] getty started on tty1\n");
     return root;
   }
   let state = null;
@@ -86,22 +96,35 @@
     const r = getNode(path, cwd);
     if (r && r.node.type === "dir") throw new Error("Is a directory: " + path);
     if (r && r.node.type === "file") {
-      r.node.content = String(content);
-      r.node.size = r.node.content.length;
+      r.node.content = content == null ? "" : String(content);
+      r.node.size = opts.size != null ? opts.size : r.node.content.length;
       r.node.mtime = now();
       if (opts.mode) r.node.mode = opts.mode;
+      if (opts.mime) r.node.mime = opts.mime; else if (opts.encoding !== "dataurl") delete r.node.mime;
+      if (opts.encoding) r.node.encoding = opts.encoding; else delete r.node.encoding;
       save(); return;
     }
     const p = ensureParent(path, cwd);
     if (!p || !p.name) throw new Error("Cannot create: " + path);
-    p.parent.children[p.name] = mkFile(String(content), opts.mode, (Helix.kernel && Helix.kernel.user) || "root");
+    p.parent.children[p.name] = mkFile(content, opts.mode, (Helix.kernel && Helix.kernel.state && Helix.kernel.state.user) || "root", opts);
     save();
   }
-  function mkdir(path, cwd) {
-    if (getNode(path, cwd)) throw new Error("File exists: " + path);
+  function mkdir(path, cwd, opts) {
+    opts = opts || {};
+    const r = getNode(path, cwd);
+    if (r) { if (opts.p && r.node.type === "dir") return; throw new Error("File exists: " + path); }
+    if (opts.p) {
+      const parts = norm(path, cwd).split("/").filter(Boolean);
+      let cur = "";
+      for (const part of parts) {
+        cur += "/" + part;
+        if (!getNode(cur, "/")) mkdir(cur, "/", { p: false });
+      }
+      return;
+    }
     const p = ensureParent(path, cwd);
     if (!p || !p.name) throw new Error("Cannot create: " + path);
-    p.parent.children[p.name] = mkDir("755", (Helix.kernel && Helix.kernel.user) || "root");
+    p.parent.children[p.name] = mkDir("755", (Helix.kernel && Helix.kernel.state && Helix.kernel.state.user) || "root");
     save();
   }
   function rm(path, cwd, recursive) {
@@ -119,15 +142,29 @@
     return { path: r.path, type: r.node.type, mode: r.node.mode, owner: r.node.owner, mtime: r.node.mtime, size: r.node.size || 0 };
   }
   function exists(path, cwd) { return !!getNode(path, cwd); }
-  function copy(src, dest, cwd) {
+  function copy(src, dest, cwd, opts) {
+    opts = opts || {};
     const s = getNode(src, cwd);
     if (!s) throw new Error("No such file or directory: " + src);
-    if (s.node.type === "dir") throw new Error("cp: -r not implemented");
-    write(dest, read(src, cwd), cwd);
+    if (s.node.type === "dir") {
+      if (!opts.r) throw new Error("cp: -r not specified; omitting directory '" + src + "'");
+      const d = getNode(dest, cwd);
+      let target = norm(dest, cwd);
+      if (d && d.node.type === "dir") target = target.replace(/\/$/, "") + "/" + s.name;
+      mkdir(target, "/", { p: true });
+      Helix.vfs.list(s.path, "/").forEach(name => copy(s.path + "/" + name, target + "/" + name, "/", { r: true }));
+      return;
+    }
+    const d = getNode(dest, cwd);
+    let outPath = norm(dest, cwd);
+    if (d && d.node.type === "dir") outPath = outPath.replace(/\/$/, "") + "/" + s.name;
+    write(outPath, read(src, cwd), "/", { mime: s.node.mime, encoding: s.node.encoding, mode: s.node.mode, size: s.node.size });
   }
   function move(src, dest, cwd) {
-    copy(src, dest, cwd);
-    rm(src, cwd, false);
+    const s = getNode(src, cwd);
+    if (!s) throw new Error("No such file or directory: " + src);
+    copy(src, dest, cwd, { r: true });
+    rm(src, cwd, true);
   }
   function reset() { state = { root: defaultFS() }; save(); }
   window.Helix = window.Helix || {};
