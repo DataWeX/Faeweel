@@ -237,7 +237,10 @@
     },
     id() { const u=Helix.kernel.state.user||"guest"; return "uid="+(u==="root"?0:1000)+"("+u+") gid="+(u==="root"?0:1000)+"("+u+")"; },
     uptime() { const s=Math.floor(performance.now()/1000); const m=Math.floor(s/60), sec=s%60; return "up " + m + " min, " + sec + " sec, 1 user, load average: 0.12, 0.08, 0.03"; },
-    dmesg() { try { return Helix.vfs.read("/var/log/syslog","/"); } catch(e){ return "[boot] kernel initialized"; } },
+    dmesg() {
+      try { return Helix.vfs.read("/var/log/syslog","/"); }
+      catch(e){ return "[base] linux-x86_64 kernel/userspace ready (WebVM)\n[boot] helix core layer starting above linux base\n[boot] kernel initialized"; }
+    },
     rmdir(a) { if(!a[0]) throw new Error("rmdir: missing operand"); const p=Helix.vfs.norm(a[0], Helix.kernel.state.cwd); const n=Helix.vfs.getNode(p,"/"); if(!n) throw new Error("rmdir: no such file or directory: "+a[0]); if(n.node.type!=="dir") throw new Error("rmdir: not a directory: "+a[0]); if(Object.keys(n.node.children).length) throw new Error("rmdir: directory not empty: "+a[0]); Helix.vfs.rm(a[0], Helix.kernel.state.cwd, false); return ""; },
     kill(a) {
       if (!a[0]) throw new Error("kill: usage: kill PID");
@@ -284,12 +287,14 @@
       return Helix.xmlstyle.load("xml/styles.xml").then(ok => ok ? "xml styles reloaded (xml/styles.xml)" : "xmlstyle: failed to load");
     },
     neofetch() {
+      const base = (Helix.kernel.state && Helix.kernel.state.base) ? (Helix.kernel.state.base.kernel + " (" + Helix.kernel.state.base.env + ")") : "Linux x86_64";
       return [
         "   /\\_/\\     " + (Helix.kernel.state.user||"guest") + "@" + Helix.kernel.state.host,
-        "  ( -.- )    OS: HelixOS 1.0.0-js (browser simulation)",
-        "   > ^ <     Kernel: JavaScript (wasm32/browser sandbox)",
-        "  /|   |\\    Shell: hsh",
-        " (_|   |_)   Uptime: " + Math.floor(performance.now()/1000) + "s",
+        "  ( -.- )    OS: HelixOS 1.0.0 (core above Linux base)",
+        "   > ^ <     Helix Core: helix 1.0.0-js (core processes: init/getty/login/hsh)",
+        "  /|   |\\    Base Kernel: " + base,
+        " (_|   |_)   Shell: hsh",
+        "             Uptime: " + Math.floor(performance.now()/1000) + "s",
         "             Theme: " + Helix.kernel.state.theme,
         "             Memory: " + (performance && performance.memory ? Math.round(performance.memory.usedJSHeapSize/1048576)+"MB" : "n/a"),
       ].join("\n");

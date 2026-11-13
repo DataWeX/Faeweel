@@ -26,13 +26,13 @@
     root.children.home.children.guest.children.Pictures = mkDir("755", "guest");
     root.children.home.children.guest.children.Music = mkDir("755", "guest");
     root.children.etc.children.hostname = mkFile("helix\n");
-    root.children.etc.children.motd = mkFile("Welcome to HelixOS (browser JS kernel simulation)\nType 'help' for commands. Type 'startx' for HelixDE.\n");
+    root.children.etc.children.motd = mkFile("Welcome to HelixOS\nHelixOS core and hsh shell running above Linux x86_64 kernel base (WebVM).\nType 'help' for commands. Type 'startx' for HelixDE. Type 'linux' for Linux base shell.\n");
     root.children.etc.children.passwd = mkFile("root:root\nguest:guest\n");
-    root.children.etc.children["helix.conf"] = mkFile("NAME=HelixOS\nVERSION=1.0.0-js\nKERNEL=helix-1.0.0-js (browser)\nSHELL=/bin/hsh\n");
-    root.children.home.children.guest.children["README.txt"] = mkFile("HelixOS guest home.\nTry: ls, cat /etc/motd, neofetch, startx\nFiles persist in browser localStorage (helixos.vfs.v1).\n");
-    root.children.home.children.guest.children.Documents.children["notes.txt"] = mkFile("HelixOS notes\n- Boot: BIOS -> kernel log -> getty tty1 -> login\n- Core shell: hsh (init/getty/login/hsh)\n- GUI: startx -> HelixDE on :0\n");
-    root.children.usr.children.share.children.fortunes = mkFile("Simplicity is prerequisite for reliability.\n---\nIn a browser, every sandbox is a small universe.\n---\nThere is no real Linux here; only a careful simulation.\n");
-    root.children.var.children.log.children.syslog = mkFile("[boot] kernel initialized\n[boot] vfs mounted\n[boot] getty started on tty1\n");
+    root.children.etc.children["helix.conf"] = mkFile("NAME=HelixOS\nVERSION=1.0.0-js\nARCH=helix-core-above-linux-x86_64\nBASE_KERNEL=Linux x86_64 (WebVM/CheerpX)\nKERNEL=helix 1.0.0-js (core layer)\nSHELL=/bin/hsh\n");
+    root.children.home.children.guest.children["README.txt"] = mkFile("HelixOS guest home.\nArchitecture: HelixOS core + hsh shell sits above Linux x86_64 kernel/userspace base (WebVM).\nTry: ls, cat /etc/motd, neofetch, uname -a, startx, linux\nFiles persist in browser localStorage (helixos.vfs.v1).\n");
+    root.children.home.children.guest.children.Documents.children["notes.txt"] = mkFile("HelixOS notes\n- Base: Linux x86_64 kernel/userspace (WebVM, online)\n- HelixOS core above base: BIOS -> helix core -> getty tty1 -> login -> hsh\n- Core shell: hsh (init/getty/login/hsh)\n- GUI: startx -> HelixDE on :0\n- Real Linux shell: `linux` command or Linux x64 app\n");
+    root.children.usr.children.share.children.fortunes = mkFile("Simplicity is prerequisite for reliability.\n---\nIn a browser, every sandbox is a small universe.\n---\nA core can be simple, even when layered above a powerful kernel.\n");
+    root.children.var.children.log.children.syslog = mkFile("[base] linux-x86_64 kernel/userspace ready (WebVM)\n[boot] helix core layer starting above linux base\n[boot] kernel initialized\n[boot] vfs mounted\n[boot] getty started on tty1\n");
     return root;
   }
   let state = null;

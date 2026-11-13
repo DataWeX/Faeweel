@@ -10,7 +10,8 @@
     history: [],
     theme: "phosphor",
     nextPid: 1,
-    processes: {}
+    processes: {},
+    base: { kernel: "Linux x86_64", env: "WebVM/CheerpX", url: "https://webvm.io/" }
   };
   function loadPrefs() {
     try {

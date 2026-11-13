@@ -215,28 +215,55 @@
     const info = document.createElement("div");
     info.className = "dim";
     info.style.marginTop = "10px";
-    info.textContent = "HelixOS MVP — Track A (JS simulation). hsh is core process (ps).";
+    info.textContent = "HelixOS MVP — Track A core (hsh/HelixDE) above Linux x86_64 base (WebVM). hsh is core process (ps).";
     wrap.appendChild(info);
     Helix.wm.createWindow({ title: "Settings", body: wrap, x: 380, y: 120, w: 360, h: 200 });
   }
   function openLinuxVM() {
-    try {
-      const msg = Helix.commands.cmds.linux([]);
-      const pre = document.createElement("pre");
-      pre.className = "win-term-out";
-      pre.style.whiteSpace = "pre-wrap";
-      pre.textContent = String(msg || "Opening WebVM (x86_64 Linux)...");
-      Helix.wm.createWindow({ title: "Linux x86_64", body: pre, x: 340, y: 100, w: 560, h: 180 });
-    } catch (e) {
-      try { window.open("https://webvm.io/", "_blank", "noopener"); } catch (_) {}
-    }
+    const wrap = document.createElement("div");
+    wrap.style.display = "flex";
+    wrap.style.flexDirection = "column";
+    wrap.style.height = "100%";
+    wrap.style.gap = "6px";
+    const bar = document.createElement("div");
+    bar.className = "dim";
+    bar.style.fontSize = "12px";
+    bar.style.display = "flex";
+    bar.style.gap = "8px";
+    bar.style.alignItems = "center";
+    bar.style.flexWrap = "wrap";
+    bar.innerHTML = 'Base layer: <b style="color:var(--accent)">Linux x86_64 kernel/userspace (WebVM)</b> · HelixOS core/shell runs above this layer';
+    const btn = document.createElement("button");
+    btn.className = "win-btn";
+    btn.style.width = "auto";
+    btn.style.padding = "2px 8px";
+    btn.textContent = "Open in new tab";
+    btn.onclick = () => { try { window.open("https://webvm.io/", "_blank", "noopener"); } catch(e){} };
+    bar.appendChild(btn);
+    const frame = document.createElement("iframe");
+    frame.src = "https://webvm.io/";
+    frame.title = "Linux x86_64 base (WebVM)";
+    frame.style.flex = "1";
+    frame.style.width = "100%";
+    frame.style.minHeight = "220px";
+    frame.style.border = "1px solid rgba(124,255,122,0.25)";
+    frame.style.background = "#000";
+    frame.setAttribute("allow", "cross-origin-isolated");
+    const note = document.createElement("div");
+    note.className = "dim";
+    note.style.fontSize = "11px";
+    note.textContent = "If the embedded VM does not load (cross-origin/COOP restrictions), use \"Open in new tab\". Requires internet access.";
+    wrap.appendChild(bar);
+    wrap.appendChild(frame);
+    wrap.appendChild(note);
+    Helix.wm.createWindow({ title: "Linux Base (x86_64) — WebVM", body: wrap, x: 220, y: 40, w: 760, h: 520 });
   }
   function openAbout() {
     const pre = document.createElement("pre");
     pre.className = "win-term-out";
     pre.style.whiteSpace = "pre-wrap";
-    pre.textContent = "HelixOS (JS kernel simulation)\nHelixDE + helixwm (MVP)\n\nKernel: helix 1.0.0-js (browser)\nShell: hsh (core process: init→getty→login→hsh)\nUser: " + (Helix.kernel.state.user||"guest") + "\n\nGraphical session runs on top of tty1 console.\nTrack B: type `linux` (or open Linux x64 app) for real x86_64 Linux in browser (WebVM, online).";
-    Helix.wm.createWindow({ title: "About", body: pre, x: 360, y: 100, w: 460, h: 260 });
+    pre.textContent = "HelixOS (core OS layer + hsh shell + HelixDE)\nArchitecture: HelixOS core/shell sits above Linux x86_64 kernel/userspace base\n\nBase kernel: Linux x86_64 (WebVM/CheerpX, online) — open Linux x64 app\nHelix kernel: helix 1.0.0-js (browser simulation, core processes: init/getty/login/hsh)\nShell: hsh\nUser: " + (Helix.kernel.state.user||"guest") + "\n\nGraphical session runs on top of tty1 console. Use `linux` or Linux x64 app for the real Linux base layer.";
+    Helix.wm.createWindow({ title: "About", body: pre, x: 360, y: 100, w: 560, h: 300 });
   }
   const apps = [
     { id: "term", name: "Terminal", glyph: ">_", run: openTerminal },

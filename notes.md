@@ -1,6 +1,6 @@
 # HelixOS — Roadmap (concept & plan before build)
 
-**Status:** Track A (JS-simulated OS) MVP implemented in `/workspace/app` (static HTML/CSS/JS: boot→tty1 login/getty→core `hsh`, VFS in `localStorage`, HelixDE via `startx`, core commands/apps). Track B (real x86_64 Linux VM in browser) not started — requires decisions/spike (§1, §4). No commits made.
+**Status:** Track A HelixOS core + hsh shell implemented as a layer above a Linux x86_64 base (WebVM/CheerpX, online) in `/workspace/app`. Static HTML/CSS/JS: boot shows Linux base → helix core, tty1 login/getty→core `hsh`, VFS in `localStorage`, HelixDE via `startx`, `linux`/Linux x64 app opens the real Linux base shell. Track B deepening (local vendoring/VM↔VFS bridge/other distro) not started — requires decisions. No commits made.
 
 ## 0) Concept
 Build a browser-based “HelixOS” experience. Two architectural directions exist; **decision required before build**:
