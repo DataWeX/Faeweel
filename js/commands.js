@@ -29,6 +29,10 @@
     head: "head [-n N] FILE - show first lines",
     tail: "tail [-n N] FILE - show last lines",
     tree: "tree [path] - display directory tree",
+    file: "file PATH - show file type/mime info",
+    calc: "calc EXPR - evaluate simple arithmetic expression",
+    reboot: "reboot - reload HelixOS session",
+    poweroff: "poweroff - halt message (browser session remains)",
     ps: "ps - list processes (init/getty/login/hsh, DE when running)",
     kill: "kill PID - stop a non-core process",
     stat: "stat FILE - show file metadata",
@@ -43,7 +47,7 @@
   };
   const cmds = {
     help() {
-      return "Commands: help, man, clear, echo, pwd, cd, ls, cat, cp, mv, mkdir, touch, rm, rmdir, grep, head, tail, tree, wc, stat, find, env, ps, kill, id, whoami, hostname, date, uptime, uname, dmesg, df, free, fortune, neofetch, theme, reloadstyle, passwd, startx, logout, resetfs, history | pipes ; > >>, mkdir -p, cp -r, grep -i";
+      return "Commands: help, man, clear, echo, pwd, cd, ls, cat, cp, mv, mkdir, touch, rm, rmdir, grep, head, tail, tree, wc, file, stat, find, env, ps, kill, id, whoami, hostname, date, uptime, uname, dmesg, df, free, fortune, calc, neofetch, theme, reloadstyle, passwd, startx, reboot, poweroff, logout, resetfs, history | pipes ; > >>, mkdir -p, cp -r, grep -i";
     },
     man(a) { if (!a[0]) return "usage: man COMMAND"; return manPages[a[0]] || "No manual entry for " + a[0]; },
     clear() { Helix.terminal.clear(); return ""; },
@@ -75,7 +79,12 @@
     },
     cat(a, stdin) {
       if (!a[0]) return stdin != null ? String(stdin) : "";
-      return a.map(f => Helix.vfs.read(f, Helix.kernel.state.cwd)).join("\n");
+      return a.map(f => {
+        const n = Helix.vfs.getNode(f, Helix.kernel.state.cwd);
+        if (n && n.node.type === "file" && n.node.encoding === "dataurl") return "cat: " + f + ": binary/media file (" + (n.node.mime || "data") + ", " + (n.node.size || 0) + " bytes)";
+        if (n && n.node.type === "dir") throw new Error("cat: " + f + ": Is a directory");
+        return Helix.vfs.read(f, Helix.kernel.state.cwd);
+      }).join("\n");
     },
     cp(a) {
       const r = a.includes("-r") || a.includes("-R");
@@ -114,27 +123,40 @@
       const pat = args[0];
       if (!pat) throw new Error("grep: usage: grep [-i] PATTERN [FILE]");
       let text;
-      if (args[1]) text = Helix.vfs.read(args[1], Helix.kernel.state.cwd);
-      else if (stdin != null) text = String(stdin);
+      if (args[1]) {
+        const n = Helix.vfs.getNode(args[1], Helix.kernel.state.cwd);
+        if (n && n.node.type === "file" && n.node.encoding === "dataurl") throw new Error("grep: " + args[1] + ": binary file");
+        text = Helix.vfs.read(args[1], Helix.kernel.state.cwd);
+      } else if (stdin != null) text = String(stdin);
       else throw new Error("grep: missing file");
       const esc = pat.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
       const re = new RegExp(esc, ic ? "i" : "");
       return String(text).split("\n").filter(l => re.test(l)).join("\n");
     },
     head(a, stdin) {
-      let n = 10, file;
-      for (let i = 0; i < a.length; i++) { if (a[i] === "-n" && a[i+1]) { n = parseInt(a[++i],10)||10; } else if (!a[i].startsWith("-")) file = a[i]; }
-      const text = file ? Helix.vfs.read(file, Helix.kernel.state.cwd) : (stdin != null ? String(stdin) : null);
-      if (text == null) throw new Error("head: missing file");
-      return text.split("\n").slice(0,n).join("\n");
+      let narg = 10, file;
+      for (let i = 0; i < a.length; i++) { if (a[i] === "-n" && a[i+1]) { narg = parseInt(a[++i],10)||10; } else if (!a[i].startsWith("-")) file = a[i]; }
+      let text;
+      if (file) {
+        const n = Helix.vfs.getNode(file, Helix.kernel.state.cwd);
+        if (n && n.node.type === "file" && n.node.encoding === "dataurl") throw new Error("head: " + file + ": binary file");
+        text = Helix.vfs.read(file, Helix.kernel.state.cwd);
+      } else if (stdin != null) text = String(stdin);
+      else throw new Error("head: missing file");
+      return String(text).split("\n").slice(0,narg).join("\n");
     },
     tail(a, stdin) {
-      let n = 10, file;
-      for (let i = 0; i < a.length; i++) { if (a[i] === "-n" && a[i+1]) { n = parseInt(a[++i],10)||10; } else if (!a[i].startsWith("-")) file = a[i]; }
-      const text = file ? Helix.vfs.read(file, Helix.kernel.state.cwd) : (stdin != null ? String(stdin) : null);
-      if (text == null) throw new Error("tail: missing file");
-      const lines = text.split("\n");
-      return lines.slice(Math.max(0, lines.length-n)).join("\n");
+      let narg = 10, file;
+      for (let i = 0; i < a.length; i++) { if (a[i] === "-n" && a[i+1]) { narg = parseInt(a[++i],10)||10; } else if (!a[i].startsWith("-")) file = a[i]; }
+      let text;
+      if (file) {
+        const n = Helix.vfs.getNode(file, Helix.kernel.state.cwd);
+        if (n && n.node.type === "file" && n.node.encoding === "dataurl") throw new Error("tail: " + file + ": binary file");
+        text = Helix.vfs.read(file, Helix.kernel.state.cwd);
+      } else if (stdin != null) text = String(stdin);
+      else throw new Error("tail: missing file");
+      const lines = String(text).split("\n");
+      return lines.slice(Math.max(0, lines.length-narg)).join("\n");
     },
     tree(a) {
       const target = a[0] ? resolveTarget(a[0]) : Helix.kernel.state.cwd;
@@ -143,14 +165,34 @@
     },
     wc(a, stdin) {
       let text, label = "";
-      if (a[0]) { text = Helix.vfs.read(a[0], Helix.kernel.state.cwd); label = " " + a[0]; }
+      if (a[0]) {
+        const n = Helix.vfs.getNode(a[0], Helix.kernel.state.cwd);
+        if (n && n.node.type === "file" && n.node.encoding === "dataurl") throw new Error("wc: " + a[0] + ": binary file");
+        text = Helix.vfs.read(a[0], Helix.kernel.state.cwd); label = " " + a[0];
+      }
       else if (stdin != null) text = String(stdin);
       else throw new Error("wc: missing file");
-      const lines = text === "" ? 0 : text.split("\n").length;
-      const words = (text.trim().match(/\S+/g) || []).length;
-      const bytes = text.length;
+      const lines = text === "" ? 0 : String(text).split("\n").length;
+      const words = (String(text).trim().match(/\S+/g) || []).length;
+      const bytes = String(text).length;
       return lines + " " + words + " " + bytes + label;
     },
+    file(a) {
+      if (!a[0]) throw new Error("file: missing operand");
+      const n = Helix.vfs.getNode(a[0], Helix.kernel.state.cwd);
+      if (!n) throw new Error("file: " + a[0] + ": No such file or directory");
+      if (n.node.type === "dir") return a[0] + ": directory";
+      if (n.node.encoding === "dataurl") return a[0] + ": " + (n.node.mime || "binary") + " (dataurl, " + (n.node.size||0) + " bytes)";
+      return a[0] + ": " + (n.node.mime || "text/plain") + " (" + (n.node.size||0) + " bytes)";
+    },
+    calc(a) {
+      const expr = a.join(" ").trim();
+      if (!expr) throw new Error("calc: usage: calc EXPRESSION");
+      if (!/^[0-9+\-*/().%\s]+$/.test(expr)) throw new Error("calc: unsupported expression");
+      try { const v = Function('"use strict";return (' + expr + ')')(); return String(v); } catch (e) { throw new Error("calc: invalid expression"); }
+    },
+    reboot() { try { location.reload(); } catch(e){} return "rebooting..."; },
+    poweroff() { return "System halted. (browser session remains open; close tab to exit)"; },
     env() {
       const k = Helix.kernel.state;
       return ["USER="+(k.user||"guest"), "HOME="+(k.user==="root"?"/root":"/home/"+(k.user||"guest")), "PWD="+k.cwd, "HOSTNAME="+k.host, "SHELL=/bin/hsh", "TERM=helix-tty"].join("\n");
