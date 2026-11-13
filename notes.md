@@ -1,6 +1,6 @@
 # HelixOS — Roadmap (concept & plan before build)
 
-**Status:** Planning only — no implementation started in this workspace (`/workspace/app` has git + notes only).
+**Status:** Track A (JS-simulated OS) MVP implemented in `/workspace/app` (static HTML/CSS/JS: boot→tty1 login/getty→core `hsh`, VFS in `localStorage`, HelixDE via `startx`, core commands/apps). Track B (real x86_64 Linux VM in browser) not started — requires decisions/spike (§1, §4). No commits made.
 
 ## 0) Concept
 Build a browser-based “HelixOS” experience. Two architectural directions exist; **decision required before build**:
@@ -66,6 +66,10 @@ Goal: boot a **real x86_64 Linux shell** in-browser without Alpine 9p/CORS by se
 Details captured earlier (carry forward as applicable to chosen track): CRT retro aesthetic & palettes, command history/tab completion/pipes/ANSI/shortcuts, neofetch, editor/calc/games (`snake`, `matrix`, etc.), seeded files/motd/fortunes, multi-user basics, file manager drag-drop & save-to-device, Wine prefix/mappings/`winecfg` & PE refusal messaging.
 
 ## 4) Immediate next step
-**Edit this file to answer §1 (especially Track A/B/hybrid and x86_64 requirement), set MVP priorities, then reply “proceed with roadmap decisions…”** — implementation will start only after decisions are recorded.
+Track A MVP is runnable (serve statically, e.g. Node server on `:8000`; `python3` not available in this environment). Manual browser verification recommended: login (`guest/guest`, `root/root`), `startx`/desktop apps, `ps` core-shell behavior, VFS+prefs persistence (run `resetfs` if older `helixos.vfs.v1` lacks newly seeded defaults).
 
-Suggested next action based on latest request (“real shell in browser for x64 linux”): **proceed with Phase 0 spike** for Track B — vendor x86_64 TinyEMU/JSLinux assets + build local busybox initrd (per plan above) to prove feasibility in this workspace. Reply with explicit go-ahead and any constraints (must be x86_64 vs 32-bit fallback acceptable, offline vendoring allowed, target shell/packages).
+**To continue:** choose one:
+- **Track A polish/backlog:** specify priorities from §3 (e.g. tab completion fixes, editor/games, ANSI, drag-drop, themes/CRT, multi-user, etc.).
+- **Track B Phase 0 spike (real x86_64 shell):** answer §1 and give explicit go-ahead — vendor x86_64 TinyEMU/JSLinux assets + build local busybox initrd (same-origin `vendor/`/`firmware/`), confirm x86_64 required vs 32-bit fallback acceptable, offline vendoring/asset redistribution allowed, target distro/shell/packages.
+
+Implementation of Track B/spike or further Track A work will proceed after decisions/priorities are provided.
