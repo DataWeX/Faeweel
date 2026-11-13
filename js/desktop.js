@@ -219,16 +219,30 @@
     wrap.appendChild(info);
     Helix.wm.createWindow({ title: "Settings", body: wrap, x: 380, y: 120, w: 360, h: 200 });
   }
+  function openLinuxVM() {
+    try {
+      const msg = Helix.commands.cmds.linux([]);
+      const pre = document.createElement("pre");
+      pre.className = "win-term-out";
+      pre.style.whiteSpace = "pre-wrap";
+      pre.textContent = String(msg || "Opening WebVM (x86_64 Linux)...");
+      Helix.wm.createWindow({ title: "Linux x86_64", body: pre, x: 340, y: 100, w: 560, h: 180 });
+    } catch (e) {
+      try { window.open("https://webvm.io/", "_blank", "noopener"); } catch (_) {}
+    }
+  }
   function openAbout() {
     const pre = document.createElement("pre");
     pre.className = "win-term-out";
-    pre.textContent = "HelixOS (JS kernel simulation)\nHelixDE + helixwm (MVP)\n\nKernel: helix 1.0.0-js (browser)\nShell: hsh (core process: init→getty→login→hsh)\nUser: " + (Helix.kernel.state.user||"guest") + "\n\nGraphical session runs on top of tty1 console.";
-    Helix.wm.createWindow({ title: "About", body: pre, x: 360, y: 100, w: 420, h: 240 });
+    pre.style.whiteSpace = "pre-wrap";
+    pre.textContent = "HelixOS (JS kernel simulation)\nHelixDE + helixwm (MVP)\n\nKernel: helix 1.0.0-js (browser)\nShell: hsh (core process: init→getty→login→hsh)\nUser: " + (Helix.kernel.state.user||"guest") + "\n\nGraphical session runs on top of tty1 console.\nTrack B: type `linux` (or open Linux x64 app) for real x86_64 Linux in browser (WebVM, online).";
+    Helix.wm.createWindow({ title: "About", body: pre, x: 360, y: 100, w: 460, h: 260 });
   }
   const apps = [
     { id: "term", name: "Terminal", glyph: ">_", run: openTerminal },
     { id: "files", name: "Files", glyph: "[]", run: openFiles },
     { id: "proc", name: "Processes", glyph: "#", run: openProcesses },
+    { id: "linux", name: "Linux x64", glyph: "Lx", run: openLinuxVM },
     { id: "settings", name: "Settings", glyph: "*", run: openSettings },
     { id: "about", name: "About", glyph: "i", run: openAbout },
     { id: "logout", name: "Logout", glyph: "x", run: () => logoutSession() }
