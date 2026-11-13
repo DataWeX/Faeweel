@@ -28,14 +28,13 @@ Goal: boot a **real x86_64 Linux shell** in-browser without Alpine 9p/CORS by se
 *None of the above is implemented yet in `/workspace/app` (earlier pasted TinyEMU/v86 work was from another session).*
 
 ## 1) Decisions needed (gate for Phase 1)
-- [ ] **Primary track:** A (sim), B (real VM), or **hybrid** (HelixOS UI shell + embedded VM terminal for “real” mode).
-- [ ] **CPU/guest target:** must be **x86_64** Linux or acceptable to start with x86 32-bit (e.g. i386 Alpine) as MVP?
-- [ ] **Distro/image & shell:** e.g. Alpine/Buildroot/Debian-minimal; `ash`/`bash`; required packages/tools.
-- [ ] **Integration:** standalone VM page vs embedded in HelixOS CRT/DE UI (tty window, boot handoff, `startx`).
-- [ ] **Persistence:** ephemeral vs saved disk/state in browser storage (and size limits).
-- [ ] **Networking/files:** need outbound net, file import/export, shared folder with host/VFS?
-- [ ] **Scope/name:** product name (HelixOS/NEXUS/etc.) and MVP definition.
-- [ ] **Earlier asks (defer or include?):** “Helix OS and then a wallet” — include wallet? (UI mock/local data/other, explicit scope). Media manager (types/features). Wine-style shim (only meaningful as UI mapping in Track A; in Track B depends on VM userspace, likely out of MVP).
+- [x] **Primary track:** B (real VM/userspace) spike initiated from Track A MVP, launched via command (hybrid access path).
+- [x] **CPU/guest target:** **x86_64** real Linux shell in browser (online).
+- [x] **Engine & assets:** Online (no local vendoring). Default: **WebVM** (Debian-based x86_64 userspace via CheerpX) `https://webvm.io/` (Alpine not preferred). Optional: JSLinux/TinyEMU Alpine x86_64 `https://bellard.org/jslinux/vm.html?cpu=x86_64&url=alpine-x86_64.cfg&mem=256` (only x86_64 distro available on JSLinux; other JSLinux distros are x86/riscv64).
+- [x] **Integration:** Command — `linux` (default WebVM) / `linux alpine` opens the online x86_64 environment (new tab) and prints URL. (Not embedded; external dependency, requires browser internet/popups.)
+- [ ] **Persistence/network/files:** upstream environment capabilities as-is; no HelixOS↔VM bridge yet.
+- [ ] **Scope/name:** HelixOS (Track A sim) + real x86_64 Linux access via `linux` command.
+- [ ] **Earlier asks (defer or include?):** wallet/media manager/Wine-in-VM deferred.
 
 ## 2) Roadmap phases
 
@@ -68,8 +67,8 @@ Details captured earlier (carry forward as applicable to chosen track): CRT retr
 ## 4) Immediate next step
 Track A MVP is runnable (serve statically, e.g. Node server on `:8000`; `python3` not available in this environment). Manual browser verification recommended: login (`guest/guest`, `root/root`), `startx`/desktop apps, `ps` core-shell behavior, VFS+prefs persistence (run `resetfs` if older `helixos.vfs.v1` lacks newly seeded defaults).
 
+**Track B spike (in progress):** `linux` opens a real x86_64 Linux shell in browser (online, external). Default: WebVM Debian-based environment `https://webvm.io/` (CheerpX). Alternative: `linux alpine` for JSLinux/TinyEMU Alpine 3.23.2 `https://bellard.org/jslinux/vm.html?cpu=x86_64&url=alpine-x86_64.cfg&mem=256` (only x86_64 distro on JSLinux). Browser must allow popups and have internet access.
+
 **To continue:** choose one:
 - **Track A polish/backlog:** specify priorities from §3 (e.g. tab completion fixes, editor/games, ANSI, drag-drop, themes/CRT, multi-user, etc.).
-- **Track B Phase 0 spike (real x86_64 shell):** answer §1 and give explicit go-ahead — vendor x86_64 TinyEMU/JSLinux assets + build local busybox initrd (same-origin `vendor/`/`firmware/`), confirm x86_64 required vs 32-bit fallback acceptable, offline vendoring/asset redistribution allowed, target distro/shell/packages.
-
-Implementation of Track B/spike or further Track A work will proceed after decisions/priorities are provided.
+- **Track B deepen:** embed VM in HelixDE window/iframe, vendor assets locally for offline/same-origin (permission needed for third-party binaries), add VM↔VFS/file bridge, or evaluate v86/WebVM alternatives/fallback. Provide priorities/constraints.

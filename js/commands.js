@@ -31,6 +31,7 @@
     tree: "tree [path] - display directory tree",
     file: "file PATH - show file type/mime info",
     calc: "calc EXPR - evaluate simple arithmetic expression",
+    linux: "linux [webvm|alpine] - open real x86_64 Linux shell in browser (online)",
     reboot: "reboot - reload HelixOS session",
     poweroff: "poweroff - halt message (browser session remains)",
     ps: "ps - list processes (init/getty/login/hsh, DE when running)",
@@ -47,7 +48,7 @@
   };
   const cmds = {
     help() {
-      return "Commands: help, man, clear, echo, pwd, cd, ls, cat, cp, mv, mkdir, touch, rm, rmdir, grep, head, tail, tree, wc, file, stat, find, env, ps, kill, id, whoami, hostname, date, uptime, uname, dmesg, df, free, fortune, calc, neofetch, theme, reloadstyle, passwd, startx, reboot, poweroff, logout, resetfs, history | pipes ; > >>, mkdir -p, cp -r, grep -i";
+      return "Commands: help, man, clear, echo, pwd, cd, ls, cat, cp, mv, mkdir, touch, rm, rmdir, grep, head, tail, tree, wc, file, stat, find, env, ps, kill, id, whoami, hostname, date, uptime, uname, dmesg, df, free, fortune, calc, linux, neofetch, theme, reloadstyle, passwd, startx, reboot, poweroff, logout, resetfs, history | pipes ; > >>, mkdir -p, cp -r, grep -i";
     },
     man(a) { if (!a[0]) return "usage: man COMMAND"; return manPages[a[0]] || "No manual entry for " + a[0]; },
     clear() { Helix.terminal.clear(); return ""; },
@@ -190,6 +191,21 @@
       if (!expr) throw new Error("calc: usage: calc EXPRESSION");
       if (!/^[0-9+\-*/().%\s]+$/.test(expr)) throw new Error("calc: unsupported expression");
       try { const v = Function('"use strict";return (' + expr + ')')(); return String(v); } catch (e) { throw new Error("calc: invalid expression"); }
+    },
+    linux(a) {
+      const opt = (a[0] || "webvm").toLower();
+      let url, label;
+      if (opt === "alpine") {
+        url = "https://bellard.org/jslinux/vm.html?cpu=x86_64&url=alpine-x86_64.cfg&mem=256";
+        label = "Alpine Linux 3.23.2 (x86_64 console) via JSLinux/TinyEMU";
+      } else if (opt === "webvm" || opt === "debian") {
+        url = "https://webvm.io/";
+        label = "Debian-based x86_64 Linux environment via WebVM/CheerpX";
+      } else {
+        throw new Error("linux: unknown option '" + a[0] + "' (use: linux [webvm|alpine])");
+      }
+      try { if (typeof window !== "undefined" && window.open) window.open(url, "_blank", "noopener"); } catch (e) {}
+      return "Real x86_64 Linux shell in browser (online): " + label + "\n" + url + "\n(Loads external assets; requires internet access in browser. Default is WebVM; use 'linux alpine' for JSLinux Alpine.)";
     },
     reboot() { try { location.reload(); } catch(e){} return "rebooting..."; },
     poweroff() { return "System halted. (browser session remains open; close tab to exit)"; },
