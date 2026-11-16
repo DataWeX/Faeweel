@@ -33,6 +33,7 @@
     calc: "calc EXPR - evaluate simple arithmetic expression",
     linux: "linux [webvm|alpine] - open real x86_64 Linux shell in browser (online)",
     base: "base - show Linux x86_64 base kernel layer info",
+    edit: "edit FILE - open file in HelixDE editor (requires startx)",
     reboot: "reboot - reload HelixOS session",
     poweroff: "poweroff - halt message (browser session remains)",
     ps: "ps - list processes (init/getty/login/hsh, DE when running)",
@@ -49,7 +50,7 @@
   };
   const cmds = {
     help() {
-      return "Commands: help, man, clear, echo, pwd, cd, ls, cat, cp, mv, mkdir, touch, rm, rmdir, grep, head, tail, tree, wc, file, stat, find, env, ps, kill, id, whoami, hostname, date, uptime, uname, dmesg, df, free, fortune, calc, linux, base, neofetch, theme, reloadstyle, passwd, startx, reboot, poweroff, logout, resetfs, history | pipes ; > >>, mkdir -p, cp -r, grep -i";
+      return "Commands: help, man, clear, echo, pwd, cd, ls, cat, cp, mv, mkdir, touch, rm, rmdir, grep, head, tail, tree, wc, file, edit, stat, find, env, ps, kill, id, whoami, hostname, date, uptime, uname, dmesg, df, free, fortune, calc, linux, base, neofetch, theme, reloadstyle, passwd, startx, reboot, poweroff, logout, resetfs, history | pipes ; > >>, mkdir -p, cp -r, grep -i";
     },
     man(a) { if (!a[0]) return "usage: man COMMAND"; return manPages[a[0]] || "No manual entry for " + a[0]; },
     clear() { Helix.terminal.clear(); return ""; },
@@ -212,6 +213,13 @@
       const b = (Helix.kernel.state && Helix.kernel.state.base) || { kernel: "Linux x86_64", env: "WebVM/CheerpX", url: "https://webvm.io/" };
       return "Base layer: " + b.kernel + " (" + b.env + ")\nURL: " + b.url + "\nHelixOS core and hsh shell run above this Linux base. Use `linux` or Linux x64 app to open the real base shell.";
     },
+    edit(a) {
+      if (!a[0]) throw new Error("edit: missing file operand");
+      if (!Helix.desktop || !Helix.desktop.isStarted || !Helix.desktop.isStarted()) throw new Error("edit: HelixDE not running (use startx)");
+      if (!Helix.desktop.openEditorPath) throw new Error("edit: editor unavailable");
+      Helix.desktop.openEditorPath(a[0]);
+      return "opening editor: " + a[0];
+    },
     reboot() { try { location.reload(); } catch(e){} return "rebooting..."; },
     poweroff() { return "System halted. (browser session remains open; close tab to exit)"; },
     env() {
@@ -290,7 +298,12 @@
     },
     reloadstyle() {
       if (!Helix.xmlstyle || !Helix.xmlstyle.load) return "reloadstyle: xmlstyle not loaded";
-      return Helix.xmlstyle.load("xml/styles.xml").then(ok => ok ? "xml styles reloaded (xml/styles.xml)" : "xmlstyle: failed to load");
+      const t = Helix.kernel.state.theme;
+      return Helix.xmlstyle.load("xml/styles.xml").then(ok => {
+        if (!ok) return "xmlstyle: failed to load";
+        if (t) { try { cmds.theme([t]); } catch(e){} }
+        return "xml styles reloaded (xml/styles.xml)";
+      });
     },
     neofetch() {
       const base = (Helix.kernel.state && Helix.kernel.state.base) ? (Helix.kernel.state.base.kernel + " (" + Helix.kernel.state.base.env + ")") : "Linux x86_64";

@@ -369,6 +369,11 @@
     Helix.terminal.show();
     Helix.terminal.setLoginMode(true);
   }
+  function openEditorPath(p) {
+    const full = Helix.vfs.norm(p, Helix.kernel.state.cwd);
+    const name = full.split("/").filter(Boolean).pop() || full;
+    openEditor(full, name);
+  }
   window.Helix = window.Helix || {};
-  Helix.desktop = { start, stop, logoutSession, isStarted: () => started, openTerminal };
+  Helix.desktop = { start, stop, logoutSession, isStarted: () => started, openTerminal, openEditorPath };
 })();
