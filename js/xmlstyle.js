@@ -41,9 +41,9 @@
 .win.focused .win-title { background: ${v(title,"backgroundFocused") || ""}; }
 .win-body { background: ${v(body,"background") || ""}; padding: ${v(body,"padding") || "8px"}; color: ${v(body,"color") || ""}; }
 .de-icon { background: ${v(icon,"background") || ""}; border: ${v(icon,"border") || ""}; color: ${v(icon,"color") || ""}; border-radius: ${v(icon,"radius") || "0"}; }
-.win-btn { background: ${v(btn,"background") || ""}; border: ${v(btn,"border") || ""}; color: ${v(btn,"color") || ""}; }
-.win-term-row input { background: ${v(input,"background") || ""}; border: ${v(input,"border") || ""}; color: ${v(input,"color") || ""}; }
-.win-term-out { background: ${v(term,"background") || ""}; color: ${v(term,"color") || ""}; }
+.win-btn, .win-body button { background: ${v(btn,"background") || ""}; border: ${v(btn,"border") || ""}; color: ${v(btn,"color") || ""}; }
+.win-term-row input, .win-body input, .win-body textarea { background: ${v(input,"background") || ""}; border: ${v(input,"border") || ""}; color: ${v(input,"color") || ""}; }
+.win-term-out, .win-body pre { background: ${v(term,"background") || "transparent"}; color: ${v(term,"color") || ""}; }
 `.trim();
     let tag = document.getElementById("xml-style");
     if (!tag) { tag = document.createElement("style"); tag.id = "xml-style"; document.head.appendChild(tag); }

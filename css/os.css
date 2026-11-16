@@ -49,12 +49,15 @@ html, body { margin: 0; height: 100%; background: #000; color: var(--fg); font-f
 .win.focused .win-title { background: linear-gradient(180deg,#1d4a22,#123018); }
 .win-title .title-text { flex: 1; }
 .win-btn { width: 22px; height: 22px; border: 1px solid rgba(124,255,122,0.3); background: rgba(0,0,0,0.3); color: var(--fg); cursor: pointer; font: inherit; line-height: 1; }
-.win-body { flex: 1; padding: 8px; overflow: auto; background: #050a08; border-top: 1px solid rgba(0,0,0,0.4); }
-.win-term-out { margin: 0; white-space: pre-wrap; word-break: break-word; font-size: 13px; line-height: 1.35; min-height: 120px; }
-.win-term-row { display: flex; gap: 6px; margin-top: 6px; }
+.win-btn:hover { filter: brightness(1.2); }
+.win-body { flex: 1; padding: 8px; overflow: auto; background: #050a08; border-top: 1px solid rgba(0,0,0,0.4); color: var(--fg); }
+.win-term-out { margin: 0; white-space: pre-wrap; word-break: break-word; font-size: 13px; line-height: 1.35; min-height: 120px; background: transparent; }
+.win-term-row { display: flex; gap: 6px; margin-top: 6px; align-items: center; }
 .win-term-row input { flex: 1; background: #08110c; color: var(--fg); border: 1px solid rgba(124,255,122,0.25); font: inherit; padding: 4px 6px; outline: none; }
 .win-list { margin: 0; padding-left: 0; list-style: none; font-size: 13px; }
 .win-list li { padding: 2px 0; }
+.win-body textarea { font-family: inherit; }
+.win-body input[type="text"], .win-body input:not([type]) { font-family: inherit; }
 
 /* DE touch/mobile tweaks */
 .win-title { touch-action: none; }
