@@ -32,6 +32,7 @@
     file: "file PATH - show file type/mime info",
     calc: "calc EXPR - evaluate simple arithmetic expression",
     linux: "linux [webvm|alpine] - open real x86_64 Linux shell in browser (online)",
+    base: "base - show Linux x86_64 base kernel layer info",
     reboot: "reboot - reload HelixOS session",
     poweroff: "poweroff - halt message (browser session remains)",
     ps: "ps - list processes (init/getty/login/hsh, DE when running)",
@@ -48,7 +49,7 @@
   };
   const cmds = {
     help() {
-      return "Commands: help, man, clear, echo, pwd, cd, ls, cat, cp, mv, mkdir, touch, rm, rmdir, grep, head, tail, tree, wc, file, stat, find, env, ps, kill, id, whoami, hostname, date, uptime, uname, dmesg, df, free, fortune, calc, linux, neofetch, theme, reloadstyle, passwd, startx, reboot, poweroff, logout, resetfs, history | pipes ; > >>, mkdir -p, cp -r, grep -i";
+      return "Commands: help, man, clear, echo, pwd, cd, ls, cat, cp, mv, mkdir, touch, rm, rmdir, grep, head, tail, tree, wc, file, stat, find, env, ps, kill, id, whoami, hostname, date, uptime, uname, dmesg, df, free, fortune, calc, linux, base, neofetch, theme, reloadstyle, passwd, startx, reboot, poweroff, logout, resetfs, history | pipes ; > >>, mkdir -p, cp -r, grep -i";
     },
     man(a) { if (!a[0]) return "usage: man COMMAND"; return manPages[a[0]] || "No manual entry for " + a[0]; },
     clear() { Helix.terminal.clear(); return ""; },
@@ -207,6 +208,10 @@
       try { if (typeof window !== "undefined" && window.open) window.open(url, "_blank", "noopener"); } catch (e) {}
       return "Real x86_64 Linux shell in browser (online): " + label + "\n" + url + "\n(Loads external assets; requires internet access in browser. Default is WebVM; use 'linux alpine' for JSLinux Alpine.)";
     },
+    base() {
+      const b = (Helix.kernel.state && Helix.kernel.state.base) || { kernel: "Linux x86_64", env: "WebVM/CheerpX", url: "https://webvm.io/" };
+      return "Base layer: " + b.kernel + " (" + b.env + ")\nURL: " + b.url + "\nHelixOS core and hsh shell run above this Linux base. Use `linux` or Linux x64 app to open the real base shell.";
+    },
     reboot() { try { location.reload(); } catch(e){} return "rebooting..."; },
     poweroff() { return "System halted. (browser session remains open; close tab to exit)"; },
     env() {
@@ -270,16 +275,17 @@
     hostname() { return Helix.kernel.state.host; },
     ps() { return Helix.kernel.ps(); },
     date() { return new Date().toString(); },
-    uname() { return "HelixOS helix 1.0.0-js wasm32 browser"; },
+    uname() { return "HelixOS helix 1.0.0-js (core above Linux x86_64/WebVM) wasm32 browser"; },
     history() { return Helix.kernel.state.history.map((h,i)=>String(i+1).padStart(4)+"  "+h).join("\n"); },
     theme(a) {
       const t = a[0];
-      const map = { phosphor: ["#05080a","#7CFF7A","#9dff8a"], amber:["#0a0702","#ffbf5a","#ffd68a"], ice:["#04080c","#7fdcff","#b6ecff"], rose:["#0c0508","#ff7fa8","#ffb3cb"] };
+      const map = { phosphor: ["#05080a","#7CFF7A","#9dff8a","#3fae43"], amber:["#0a0702","#ffbf5a","#ffd68a","#b8842a"], ice:["#04080c","#7fdcff","#b6ecff","#3a8fb0"], rose:["#0c0508","#ff7fa8","#ffb3cb","#b34d72"] };
       if (!t || !map[t]) return "themes: " + Object.keys(map).join(", ");
       const r = document.documentElement.style;
-      r.setProperty("--bg", map[t][0]); r.setProperty("--fg", map[t][1]); r.setProperty("--accent", map[t][2]);
+      r.setProperty("--bg", map[t][0]); r.setProperty("--fg", map[t][1]); r.setProperty("--accent", map[t][2]); r.setProperty("--dim", map[t][3] || map[t][1]);
       Helix.kernel.state.theme = t;
       if (Helix.kernel.savePrefs) Helix.kernel.savePrefs();
+      if (Helix.xmlstyle && Helix.xmlstyle.refresh) Helix.xmlstyle.refresh();
       return "theme: " + t;
     },
     reloadstyle() {

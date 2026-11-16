@@ -26,6 +26,40 @@
     row.appendChild(prompt); row.appendChild(input);
     wrap.appendChild(out); wrap.appendChild(row);
     function print(t) { out.textContent += (t == null ? "" : String(t)) + "\n"; out.scrollTop = out.scrollHeight; }
+    function commonPrefix(arr) { if (!arr.length) return ""; let p = arr[0]; for (let i=1;i<arr.length;i++) while (!arr[i].startsWith(p)) p = p.slice(0,-1); return p; }
+    function tabComplete() {
+      const v = input.value;
+      const parts = v.match(/(?:[^\s"]+|"[^"]*")+/g) || [];
+      const trailing = /\s$/.test(v);
+      const completingArg = parts.length > 1 || (parts.length === 1 && trailing);
+      const token = trailing ? "" : (parts[parts.length - 1] || "");
+      if (!completingArg) {
+        const names = Object.keys(Helix.commands.cmds).filter(n => n.startsWith(token));
+        if (names.length === 1) input.value = names[0] + " ";
+        else if (names.length > 1) { print(Helix.kernel.prompt() + v); print(names.join("  ")); input.value = commonPrefix(names); }
+        return;
+      }
+      let dirPart = token, base = token;
+      const i = token.lastIndexOf("/");
+      if (i >= 0) { dirPart = token.slice(0, i+1); base = token.slice(i+1); }
+      const dirPath = Helix.vfs.norm(dirPart || ".", Helix.kernel.state.cwd);
+      const node = Helix.vfs.getNode(dirPath, "/");
+      if (!node || node.node.type !== "dir") return;
+      const matches = Object.keys(node.node.children).filter(n => n.startsWith(base));
+      if (matches.length === 1) {
+        const m = matches[0];
+        const child = node.node.children[m];
+        const rep = dirPart + m + (child.type === "dir" ? "/" : " ");
+        if (trailing) parts.push(rep); else parts[parts.length - 1] = rep;
+        input.value = parts.join(" ");
+      } else if (matches.length > 1) {
+        print(Helix.kernel.prompt() + v);
+        print(matches.join("  "));
+        const cp = commonPrefix(matches);
+        if (trailing) parts.push(dirPart + cp); else parts[parts.length - 1] = dirPart + cp;
+        input.value = parts.join(" ");
+      }
+    }
     print("Terminal (tty app window) - core hsh runs as system process");
     async function runLine() {
       const v = input.value; input.value = "";
@@ -43,6 +77,7 @@
       if (e.key === "Enter") { await runLine(); }
       else if (e.key === "l" && e.ctrlKey) { e.preventDefault(); out.textContent = ""; }
       else if (e.key === "c" && e.ctrlKey) { e.preventDefault(); print("^C"); input.value = ""; }
+      else if (e.key === "Tab") { e.preventDefault(); tabComplete(); }
       else if (e.key === "ArrowUp") {
         e.preventDefault();
         const h = Helix.kernel.state.history;
