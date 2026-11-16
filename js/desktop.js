@@ -1,9 +1,16 @@
 (function () {
   let started = false;
   let clockTimer = null;
+  function refresh() { if (window.Helix && Helix.xmlstyle && Helix.xmlstyle.refresh) Helix.xmlstyle.refresh(); }
   function setClock() {
     const el = document.getElementById("de-clock");
     if (el) el.textContent = new Date().toLocaleString();
+  }
+  function mkBtnStyle(b, small) {
+    b.style.width = "auto";
+    b.style.padding = small ? "2px 8px" : "4px 10px";
+    b.style.cursor = "pointer";
+    b.style.font = "inherit";
   }
   function openTerminal() {
     const wrap = document.createElement("div");
@@ -104,25 +111,25 @@
     } else if (isData) {
       const info = document.createElement("div");
       info.className = "dim";
+      info.style.color = "var(--dim)";
       info.textContent = "Binary/media file (" + ((node.node.mime)||"data") + ", " + (node.node.size||0) + " bytes). Preview not available; use Download.";
       wrap.appendChild(info);
     } else {
       const ta = document.createElement("textarea");
       ta.value = content;
-      ta.style.width = "100%"; ta.style.height = "220px"; ta.style.background = "var(--bg,#050a08)";
-      ta.style.color = "var(--fg)"; ta.style.border = "1px solid rgba(124,255,122,0.25)";
+      ta.style.width = "100%"; ta.style.height = "220px";
       ta.style.font = "inherit"; ta.style.padding = "6px"; ta.spellcheck = false;
       wrap._ta = ta;
       wrap.appendChild(ta);
     }
     const bar = document.createElement("div");
     bar.style.marginTop = "6px"; bar.style.display = "flex"; bar.style.gap = "6px"; bar.style.flexWrap = "wrap";
-    function mkBtn(label, fn) { const b=document.createElement("button"); b.className="win-btn"; b.style.width="auto"; b.style.padding="4px 10px"; b.textContent=label; b.onclick=fn; return b; }
-    const status = document.createElement("span"); status.className="dim"; status.style.marginLeft="4px";
+    function mkBtn(label, fn) { const b=document.createElement("button"); b.className="win-btn"; mkBtnStyle(b,false); b.textContent=label; b.onclick=fn; return b; }
+    const status = document.createElement("span"); status.className="dim"; status.style.marginLeft="4px"; status.style.color="var(--dim)";
     if (!isData) {
-      bar.appendChild(mkBtn("Save", () => { try { Helix.vfs.write(path, wrap._ta.value, "/"); status.textContent = "saved"; status.className="dim"; } catch(e){ status.textContent=e.message; status.className="err"; } }));
+      bar.appendChild(mkBtn("Save", () => { try { Helix.vfs.write(path, wrap._ta.value, "/"); status.textContent = "saved"; status.style.color="var(--dim)"; } catch(e){ status.textContent=e.message; status.style.color="var(--error)"; } }));
     }
-    bar.appendChild(mkBtn("Download", () => { downloadNode(path, name||"file"); status.textContent="downloaded"; status.className="dim"; }));
+    bar.appendChild(mkBtn("Download", () => { downloadNode(path, name||"file"); status.textContent="downloaded"; status.style.color="var(--dim)"; }));
     bar.appendChild(status);
     wrap.appendChild(bar);
     Helix.wm.createWindow({ title: (isData ? "View: " : "Edit: ") + (name||path), body: wrap, x: 320, y: 70, w: 560, h: isImg ? 360 : 320 });
@@ -132,44 +139,45 @@
     let curPath = Helix.vfs.norm(Helix.kernel.state.cwd || "/home/" + Helix.kernel.state.user, "/");
     const toolbar = document.createElement("div");
     toolbar.style.display = "flex"; toolbar.style.gap = "6px"; toolbar.style.flexWrap = "wrap"; toolbar.style.marginBottom = "6px";
-    const head = document.createElement("div"); head.style.marginBottom = "6px"; head.className="dim";
+    const head = document.createElement("div"); head.style.marginBottom = "6px"; head.className="dim"; head.style.color="var(--dim)";
     const list = document.createElement("ul"); list.className = "win-list";
-    function mkBtn(label, fn) { const b=document.createElement("button"); b.className="win-btn"; b.style.width="auto"; b.style.padding="2px 8px"; b.textContent=label; b.onclick=fn; return b; }
+    function mkBtn(label, fn) { const b=document.createElement("button"); b.className="win-btn"; mkBtnStyle(b,true); b.textContent=label; b.onclick=fn; return b; }
     function render() {
       list.innerHTML = "";
       head.textContent = "Path: " + curPath;
       try {
         const items = Helix.vfs.list(curPath, "/");
         if (curPath !== "/") {
-          const up = document.createElement("li"); up.textContent = ".. (up)"; up.style.cursor="pointer";
+          const up = document.createElement("li"); up.textContent = ".. (up)"; up.style.cursor="pointer"; up.style.padding="3px 0";
           up.onclick = () => { curPath = Helix.vfs.norm(curPath + "/..", "/"); render(); }; list.appendChild(up);
         }
         items.forEach(name => {
           const full = curPath === "/" ? "/" + name : curPath + "/" + name;
           const n = Helix.vfs.getNode(full, "/");
           const li = document.createElement("li");
-          li.style.display = "flex"; li.style.gap = "8px"; li.style.alignItems = "center";
+          li.style.display = "flex"; li.style.gap = "8px"; li.style.alignItems = "center"; li.style.padding="3px 0";
           const label = document.createElement("span");
           label.style.cursor = "pointer"; label.style.flex = "1";
           label.textContent = (n.node.type === "dir" ? "[DIR] " : "[FILE] ") + name + (n.node.type === "file" ? " (" + (n.node.size||0) + "b)" : "");
           label.onclick = () => { if (n.node.type === "dir") { curPath = n.path; render(); } else { openEditor(n.path, name); } };
           li.appendChild(label);
           if (n.node.type === "file") {
-            const dl = document.createElement("button"); dl.className="win-btn"; dl.style.width="auto"; dl.style.padding="0 6px"; dl.textContent="↓";
+            const dl = document.createElement("button"); dl.className="win-btn"; mkBtnStyle(dl,true); dl.style.padding="0 6px"; dl.textContent="↓";
             dl.title="Download to device"; dl.onclick = (e)=>{ e.stopPropagation(); downloadNode(n.path, name); };
             li.appendChild(dl);
           }
-          const rn = document.createElement("button"); rn.className="win-btn"; rn.style.width="auto"; rn.style.padding="0 6px"; rn.textContent="r";
+          const rn = document.createElement("button"); rn.className="win-btn"; mkBtnStyle(rn,true); rn.style.padding="0 6px"; rn.textContent="r";
           rn.title="Rename"; rn.onclick = (e)=>{ e.stopPropagation(); const nn=prompt("Rename to:", name); if(!nn || nn===name) return; const dest=(curPath==="/"?"":curPath)+"/"+nn; try{ Helix.vfs.move(n.path, dest, "/"); render(); }catch(err){ alert(err.message); } };
           li.appendChild(rn);
-          const del = document.createElement("button"); del.className="win-btn"; del.style.width="auto"; del.style.padding="0 6px"; del.textContent="x";
+          const del = document.createElement("button"); del.className="win-btn"; mkBtnStyle(del,true); del.style.padding="0 6px"; del.textContent="x";
           del.title="Delete"; del.onclick = (e)=>{ e.stopPropagation(); try{ Helix.vfs.rm(n.path,"/", n.node.type==="dir"); render(); }catch(err){ alert(err.message); } };
           li.appendChild(del);
           list.appendChild(li);
         });
       } catch (e) {
-        const li = document.createElement("li"); li.textContent = e.message; li.className = "err"; list.appendChild(li);
+        const li = document.createElement("li"); li.textContent = e.message; li.style.color="var(--error)"; list.appendChild(li);
       }
+      refresh();
     }
     toolbar.appendChild(mkBtn("Up", () => { curPath = Helix.vfs.norm(curPath + "/..", "/"); render(); }));
     toolbar.appendChild(mkBtn("Refresh", render));
@@ -184,15 +192,15 @@
     const wrap = document.createElement("div");
     const pre = document.createElement("pre");
     pre.className = "win-term-out";
-    function refresh() { try { pre.textContent = Helix.kernel.ps(); } catch (e) { pre.textContent = e.message; } }
+    function refreshPs() { try { pre.textContent = Helix.kernel.ps(); } catch (e) { pre.textContent = e.message; } }
     const bar = document.createElement("div");
     bar.style.marginBottom = "6px"; bar.style.display = "flex"; bar.style.gap = "6px";
-    const b = document.createElement("button"); b.className = "win-btn"; b.style.width = "auto"; b.style.padding = "4px 10px"; b.textContent = "Refresh"; b.onclick = refresh;
+    const b = document.createElement("button"); b.className = "win-btn"; mkBtnStyle(b,false); b.textContent = "Refresh"; b.onclick = refreshPs;
     bar.appendChild(b);
     wrap.appendChild(bar); wrap.appendChild(pre);
-    refresh();
+    refreshPs();
     const w = Helix.wm.createWindow({ title: "Processes", body: wrap, x: 360, y: 90, w: 640, h: 320 });
-    const timer = setInterval(() => { if (!w.win.isConnected) clearInterval(timer); else refresh(); }, 2000);
+    const timer = setInterval(() => { if (!w.win.isConnected) clearInterval(timer); else refreshPs(); }, 2000);
     return w;
   }
   function openSettings() {
@@ -204,16 +212,16 @@
     ["phosphor","amber","ice","rose"].forEach(t => {
       const b = document.createElement("button");
       b.className = "win-btn";
-      b.style.width = "auto"; b.style.padding = "4px 10px"; b.style.margin = "0 6px 6px 0";
+      mkBtnStyle(b,false); b.style.margin = "0 6px 6px 0";
       b.textContent = t;
       b.onclick = () => { try { Helix.commands.cmds.theme([t]); } catch(e){} };
       wrap.appendChild(b);
     });
-    const hr = document.createElement("div"); hr.style.margin = "10px 0 6px"; hr.className="dim"; hr.textContent="XML style (xml/styles.xml)"; wrap.appendChild(hr);
-    const rb = document.createElement("button"); rb.className="win-btn"; rb.style.width="auto"; rb.style.padding="4px 10px"; rb.textContent="Reload styles";
+    const hr = document.createElement("div"); hr.style.margin = "10px 0 6px"; hr.className="dim"; hr.style.color="var(--dim)"; hr.textContent="XML style (xml/styles.xml)"; wrap.appendChild(hr);
+    const rb = document.createElement("button"); rb.className="win-btn"; mkBtnStyle(rb,false); rb.textContent="Reload styles";
     rb.onclick = async () => { if (Helix.xmlstyle && Helix.xmlstyle.load) { await Helix.xmlstyle.load("xml/styles.xml"); rb.textContent="Reloaded"; setTimeout(()=>rb.textContent="Reload styles",1200); } }; wrap.appendChild(rb);
     const info = document.createElement("div");
-    info.className = "dim";
+    info.className = "dim"; info.style.color="var(--dim)";
     info.style.marginTop = "10px";
     info.textContent = "HelixOS MVP — Track A core (hsh/HelixDE) above Linux x86_64 base (WebVM). hsh is core process (ps).";
     wrap.appendChild(info);
@@ -232,11 +240,11 @@
     bar.style.gap = "8px";
     bar.style.alignItems = "center";
     bar.style.flexWrap = "wrap";
+    bar.style.color = "var(--dim)";
     bar.innerHTML = 'Base layer: <b style="color:var(--accent)">Linux x86_64 kernel/userspace (WebVM)</b> · HelixOS core/shell runs above this layer';
     const btn = document.createElement("button");
     btn.className = "win-btn";
-    btn.style.width = "auto";
-    btn.style.padding = "2px 8px";
+    mkBtnStyle(btn,true);
     btn.textContent = "Open in new tab";
     btn.onclick = () => { try { window.open("https://webvm.io/", "_blank", "noopener"); } catch(e){} };
     bar.appendChild(btn);
@@ -252,6 +260,7 @@
     const note = document.createElement("div");
     note.className = "dim";
     note.style.fontSize = "11px";
+    note.style.color = "var(--dim)";
     note.textContent = "If the embedded VM does not load (cross-origin/COOP restrictions), use \"Open in new tab\". Requires internet access.";
     wrap.appendChild(bar);
     wrap.appendChild(frame);
@@ -284,6 +293,7 @@
       d.onclick = () => a.run();
       c.appendChild(d);
     });
+    refresh();
   }
   function start() {
     if (started) return "HelixDE already running on :0";
@@ -292,20 +302,25 @@
     if (!k.getProcByName("helixwm")) k.addProc("helixwm", { cmd: "helixwm :0", user: k.state.user, ppid: 1, tty: "tty1" });
     if (!k.getProcByName("helixde")) k.addProc("helixde", { cmd: "helixde", user: k.state.user, ppid: k.getProcByName("helixwm").pid, tty: "tty1" });
     Helix.terminal.hide();
-    document.getElementById("de").classList.remove("hidden");
+    const de = document.getElementById("de");
+    de.dataset.visible = "1";
+    de.style.display = "flex";
     document.getElementById("de-user").textContent = k.state.user + "@" + k.state.host;
     renderIcons();
     setClock();
     clockTimer = setInterval(setClock, 1000);
     started = true;
     openTerminal();
+    refresh();
     return "HelixDE started on :0 (helixwm). hsh is core process (ps). Terminal app opened.";
   }
   function stop(returnToTty) {
     if (!started) return;
     ["helixde","helixwm"].forEach(n => { const p = Helix.kernel.getProcByName(n); if (p) Helix.kernel.kill(p.pid); });
     document.getElementById("de-windows").innerHTML = "";
-    document.getElementById("de").classList.add("hidden");
+    const de = document.getElementById("de");
+    de.dataset.visible = "0";
+    de.style.display = "none";
     if (clockTimer) clearInterval(clockTimer);
     started = false;
     if (returnToTty) {

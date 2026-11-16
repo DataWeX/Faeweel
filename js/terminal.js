@@ -11,6 +11,8 @@
   function print(text, cls) {
     const span = document.createElement("span");
     if (cls) span.className = cls;
+    if (cls === "dim") span.style.color = "var(--dim)";
+    if (cls === "err") span.style.color = "var(--error)";
     span.textContent = String(text) + "\n";
     outEl.appendChild(span);
     outEl.scrollTop = outEl.scrollHeight;
@@ -81,7 +83,6 @@
       const m = matches[0];
       const child = node.node.children[m];
       const rep = dirPart + m + (child.type === "dir" ? "/" : " ");
-      parts[parts.length - 1 - (trailing?0:0)] = rep; // simplified
       if (trailing) parts.push(rep); else parts[parts.length - 1] = rep;
       inputEl.value = parts.join(" ");
     } else if (matches.length > 1) {
@@ -122,13 +123,15 @@
       else { histIndex = -1; inputEl.value = histDraft; }
     }
   });
-  document.addEventListener("click", () => { if (!termEl.classList.contains("hidden")) inputEl.focus(); });
+  document.addEventListener("click", () => { if (termEl.dataset.visible === "1") inputEl.focus(); });
   function show() {
-    bootEl.classList.add("hidden");
-    termEl.classList.remove("hidden");
+    bootEl.style.display = "none";
+    termEl.dataset.visible = "1";
+    termEl.style.display = "flex";
+    if (Helix.xmlstyle && Helix.xmlstyle.refresh) Helix.xmlstyle.refresh();
     inputEl.focus();
   }
-  function hide() { termEl.classList.add("hidden"); }
+  function hide() { termEl.dataset.visible = "0"; termEl.style.display = "none"; }
   function showTerminal() { show(); }
   async function boot() {
     const lines = [

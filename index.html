@@ -4,20 +4,19 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>HelixOS</title>
-  <link rel="stylesheet" href="css/os.css">
 </head>
 <body>
   <div id="screen">
     <div id="crt"></div>
     <div id="boot" class="layer"></div>
-    <div id="terminal" class="layer hidden">
+    <div id="terminal" class="layer" data-visible="0">
       <pre id="output" aria-live="polite"></pre>
       <div id="prompt-line">
         <span id="prompt"></span>
         <input id="input" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
       </div>
     </div>
-    <div id="de" class="hidden">
+    <div id="de" data-visible="0">
       <div id="de-bar">
         <span class="de-brand">HelixDE</span>
         <span id="de-user"></span>

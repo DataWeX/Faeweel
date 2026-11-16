@@ -6,7 +6,25 @@
     <item name="accent">#9dff8a</item>
     <item name="dim">#3fae43</item>
     <item name="error">#ff6b6b</item>
-    <item name="font">"IBM Plex Mono", "Fira Code", ui-monospace, monospace</item>
+    <item name="font">"IBM Plex Mono", "Fira Code", "JetBrains Mono", ui-monospace, monospace</item>
+  </style>
+
+  <style name="Base">
+    <item name="bodyBackground">#000000</item>
+    <item name="screenBackground">radial-gradient(ellipse at center, #0b1410 0%, var(--bg) 70%)</item>
+    <item name="color">var(--fg)</item>
+    <item name="fontFamily">var(--font)</item>
+  </style>
+
+  <style name="CRT">
+    <item name="background">repeating-linear-gradient(to bottom, rgba(255,255,255,0.03), rgba(255,255,255,0.03) 1px, transparent 1px, transparent 3px)</item>
+    <item name="boxShadow">inset 0 0 80px rgba(0,0,0,0.6)</item>
+    <item name="opacity">0.35</item>
+  </style>
+
+  <style name="TerminalLayer">
+    <item name="fontSize">14px</item>
+    <item name="lineHeight">1.35</item>
   </style>
 
   <style name="Desktop">
@@ -18,6 +36,13 @@
     <item name="background">rgba(0,0,0,0.45)</item>
     <item name="borderBottom">1px solid rgba(124,255,122,0.2)</item>
     <item name="color">var(--fg)</item>
+    <item name="fontSize">13px</item>
+  </style>
+
+  <style name="Desktop.Icons">
+    <item name="width">220px</item>
+    <item name="columns">repeat(2, 100px)</item>
+    <item name="gap">8px</item>
   </style>
 
   <style name="Window">
@@ -47,6 +72,8 @@
     <item name="border">1px solid rgba(124,255,122,0.15)</item>
     <item name="color">var(--fg)</item>
     <item name="radius">2px</item>
+    <item name="padding">8px 6px</item>
+    <item name="fontSize">12px</item>
   </style>
 
   <style name="App.Button">
@@ -62,7 +89,7 @@
   </style>
 
   <style name="App.Terminal">
-    <item name="background">#050a08</item>
+    <item name="background">transparent</item>
     <item name="color">var(--fg)</item>
   </style>
 </resources>

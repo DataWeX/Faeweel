@@ -1,19 +1,27 @@
 (function () {
   let z = 10;
+  function refresh() { if (window.Helix && Helix.xmlstyle && Helix.xmlstyle.refresh) Helix.xmlstyle.refresh(); }
   function focus(win) {
-    document.querySelectorAll(".win").forEach(w => w.classList.remove("focused"));
-    win.classList.add("focused");
+    document.querySelectorAll(".win").forEach(w => { w.dataset.focused = "0"; w.style.borderColor = ""; });
+    win.dataset.focused = "1";
     win.style.zIndex = ++z;
+    refresh();
   }
   function createWindow(opts) {
     opts = opts || {};
     const area = document.getElementById("de-windows");
     const win = document.createElement("div");
     win.className = "win";
+    win.dataset.focused = "0";
+    win.dataset.hidden = "0";
+    win.style.position = "absolute";
     win.style.left = (opts.x || 260) + "px";
     win.style.top = (opts.y || 40) + "px";
     win.style.width = (opts.w || 520) + "px";
     win.style.height = (opts.h || 320) + "px";
+    win.style.display = "flex";
+    win.style.flexDirection = "column";
+    win.style.boxSizing = "border-box";
     const title = document.createElement("div");
     title.className = "win-title";
     const t = document.createElement("span");
@@ -23,6 +31,7 @@
     close.className = "win-btn";
     close.textContent = "×";
     close.title = opts.hideOnClose ? "Hide" : "Close";
+    close.style.width = "22px"; close.style.height = "22px"; close.style.lineHeight = "1"; close.style.cursor = "pointer";
     title.appendChild(t);
     title.appendChild(close);
     const body = document.createElement("div");
@@ -33,12 +42,13 @@
     area.appendChild(win);
     focus(win);
     win.addEventListener("pointerdown", () => focus(win));
-    function show() { win.style.display = ""; focus(win); if (opts.onShow) opts.onShow(); }
-    function hide() { win.style.display = "none"; if (opts.onHide) opts.onHide(); }
+    function show() { win.dataset.hidden = "0"; win.style.display = "flex"; focus(win); if (opts.onShow) opts.onShow(); refresh(); }
+    function hide() { win.dataset.hidden = "1"; win.style.display = "none"; if (opts.onHide) opts.onHide(); }
     close.addEventListener("click", () => {
       if (opts.hideOnClose) { hide(); return; }
       if (opts.onClose) opts.onClose();
       win.remove();
+      refresh();
     });
     let drag = null;
     title.style.touchAction = "none";
@@ -59,5 +69,5 @@
     return { win, body, close, focus: () => focus(win), show, hide, setTitle: (s) => { t.textContent = s; } };
   }
   window.Helix = window.Helix || {};
-  Helix.wm = { createWindow, focus };
+  Helix.wm = { createWindow, focus, refresh };
 })();
