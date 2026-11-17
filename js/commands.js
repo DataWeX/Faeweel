@@ -34,6 +34,8 @@
     linux: "linux [webvm|alpine] - open real x86_64 Linux shell in browser (online)",
     base: "base - show Linux x86_64 base kernel layer info",
     edit: "edit FILE - open file in HelixDE editor (requires startx)",
+    matrix: "matrix - falling green code rain animation",
+    snake: "snake - play Snake in HelixDE (requires startx)",
     reboot: "reboot - reload HelixOS session",
     poweroff: "poweroff - halt message (browser session remains)",
     ps: "ps - list processes (init/getty/login/hsh, DE when running)",
@@ -50,7 +52,7 @@
   };
   const cmds = {
     help() {
-      return "Commands: help, man, clear, echo, pwd, cd, ls, cat, cp, mv, mkdir, touch, rm, rmdir, grep, head, tail, tree, wc, file, edit, stat, find, env, ps, kill, id, whoami, hostname, date, uptime, uname, dmesg, df, free, fortune, calc, linux, base, neofetch, theme, reloadstyle, passwd, startx, reboot, poweroff, logout, resetfs, history | pipes ; > >>, mkdir -p, cp -r, grep -i";
+      return "Commands: help, man, clear, echo, pwd, cd, ls, cat, cp, mv, mkdir, touch, rm, rmdir, grep, head, tail, tree, wc, file, edit, matrix, snake, stat, find, env, ps, kill, id, whoami, hostname, date, uptime, uname, dmesg, df, free, fortune, calc, linux, base, neofetch, theme, reloadstyle, passwd, startx, reboot, poweroff, logout, resetfs, history | pipes ; > >>, mkdir -p, cp -r, grep -i";
     },
     man(a) { if (!a[0]) return "usage: man COMMAND"; return manPages[a[0]] || "No manual entry for " + a[0]; },
     clear() { Helix.terminal.clear(); return ""; },
